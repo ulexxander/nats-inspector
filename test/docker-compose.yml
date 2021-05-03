@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  nats:
+    image: nats
+    ports:
+      - "8222:8222"
+
+  node-service:
+    image: nodeservice
+    depends_on:
+      - nats
+    environment:
+      - NATS_HOST=nats://nats
+      - NATS_PORT=4222
+
+  go-service:
+    image: goservice
+    depends_on:
+      - nats
+    environment:
+      - NATS_HOST=nats://nats
+      - NATS_PORT=4222

@@ -1,0 +1,12 @@
+{
+  "name": "nodeservice",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "nats": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^15.0.1"
+  }
+}
