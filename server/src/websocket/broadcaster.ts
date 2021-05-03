@@ -7,7 +7,7 @@ export function createBrodcaster(ws: WebsocketServer) {
   return {
     send(event: WebsocketEvents, data: any) {
       ws.clients.forEach((client) => {
-        client.send({ event, data });
+        client.send(JSON.stringify({ event, data }));
       });
     },
 

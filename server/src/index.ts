@@ -53,6 +53,10 @@ async function main() {
     port: +websocketPort,
   });
 
+  wsServer.on("connection", () => {
+    l({ msg: "Incoming websocket connection" });
+  });
+
   const wsBroadcaster = createBrodcaster(wsServer);
 
   const restapi = restana({

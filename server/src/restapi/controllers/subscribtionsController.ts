@@ -7,7 +7,7 @@ import { result } from "../responses";
 
 const createSubscribtionValidator = validator(
   Type.Object({
-    subject: Type.String(),
+    subject: Type.String({ minLength: 1 }),
   })
 );
 
