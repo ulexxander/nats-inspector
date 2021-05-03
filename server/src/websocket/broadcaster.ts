@@ -5,14 +5,14 @@ export type WebsocketBroadcaster = ReturnType<typeof createBrodcaster>;
 
 export function createBrodcaster(ws: WebsocketServer) {
   return {
-    send(event: WebsocketEvents, data: any) {
+    send(event: WebsocketEvents, payload: unknown) {
       ws.clients.forEach((client) => {
-        client.send(JSON.stringify({ event, data }));
+        client.send(JSON.stringify({ event, payload }));
       });
     },
 
-    subMessage(data: unknown) {
-      this.send("SUB_MESSAGE", data);
+    subMessage(payload: { id: string; data: unknown }) {
+      this.send("SUB_MESSAGE", payload);
     },
   };
 }

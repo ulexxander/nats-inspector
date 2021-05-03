@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { NatsClient } from "../nats";
 import { WebsocketBroadcaster } from "../websocket/broadcaster";
 
@@ -21,7 +22,7 @@ export function subscribtionsService(
       currentSubscribtions.add(subject);
 
       nats.subCallback(subject, ({ data }) => {
-        websocket.subMessage(data);
+        websocket.subMessage({ id: nanoid(), data });
       });
     },
     deleteSubscribtion(subject: string) {
