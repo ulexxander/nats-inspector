@@ -56,7 +56,7 @@ export function createForm<FieldName extends string>(
 ) {
   const validate = createEvent<void>();
   const submitted = createEvent<FormState<FieldName>>();
-  const resetForm = createEvent();
+  const reset = createEvent();
 
   const values = {} as FormValues<FieldName>;
   const updaters = {} as FormUpdaters<FieldName>;
@@ -74,8 +74,8 @@ export function createForm<FieldName extends string>(
     const $error = createStore<string>("");
     const updater = createEvent<FormValue>();
 
-    $value.on(updater, (_, newVal) => newVal).reset(resetForm);
-    $error.reset([updater, resetForm]);
+    $value.on(updater, (_, newVal) => newVal).reset(reset);
+    $error.reset([updater, reset]);
 
     values[name] = $value;
     errors[name] = $error;
@@ -111,7 +111,7 @@ export function createForm<FieldName extends string>(
   return {
     send: validate,
     submitted,
-    resetForm,
+    reset,
     reflect<P>(
       field: FieldName,
       Component: React.FC<ReflectableProps & P>

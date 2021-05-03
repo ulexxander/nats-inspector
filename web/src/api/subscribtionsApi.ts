@@ -7,15 +7,19 @@ export type CreateSubscriptionPayload = {
   subject: FormValue;
 };
 
+export type CreateSubscriptionResponse = {
+  subscribtions: SubscribtionStructure[];
+};
+
 export const SubscribtionsApi = {
   getAllSubs() {
-    return apiQuery<SubscribtionStructure[]>("/subscribtions/all", {
+    return apiQuery<CreateSubscriptionResponse>("/subscribtions/all", {
       method: "GET",
     });
   },
 
   createSub(payload: CreateSubscriptionPayload) {
-    return apiMutation<SubscribtionStructure[]>(
+    return apiMutation<CreateSubscriptionResponse>(
       "/subscribtions/create",
       { method: "POST" },
       payload

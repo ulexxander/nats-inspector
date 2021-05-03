@@ -5,6 +5,7 @@ import { FilledButton } from "./components/elements/buttons";
 import { InputReflected } from "./components/elements/inputs";
 import { Page } from "./components/elements/layout";
 import {
+  $createSubError,
   $subscribtions,
   createSubForm,
 } from "./domains/subscribtions/subscribtionsUnits";
@@ -27,19 +28,21 @@ const SubscribtionsList: React.FC = () => {
   }
 
   if (!subs.length) {
-    return <p>No subs</p>;
+    return <p>No subscribtions...</p>;
   }
 
   const subsList = subs.map((sub) => (
     <SubscribtionsListTile key={sub} data={sub} />
   ));
 
-  return <ul>{subsList}</ul>;
+  return <ul className="mt-4">{subsList}</ul>;
 };
 
 const SubscribtionSubject = createSubForm.reflect("subject", InputReflected);
 
 const CreateSubscribtion: React.FC = () => {
+  const createSubErr = useStore($createSubError);
+
   return (
     <div>
       <form
@@ -48,9 +51,15 @@ const CreateSubscribtion: React.FC = () => {
           createSubForm.send();
         }}
       >
-        <SubscribtionSubject type="text" label="Subject" />
+        <SubscribtionSubject
+          type="text"
+          name="subject"
+          label="Add new subject"
+          placeholder="Subject"
+          error={createSubErr}
+        />
 
-        <FilledButton>test</FilledButton>
+        <FilledButton>Subscribe</FilledButton>
       </form>
     </div>
   );
@@ -59,6 +68,7 @@ const CreateSubscribtion: React.FC = () => {
 export const FirstPage: React.FC = () => {
   return (
     <Page>
+      <h3 className="text-xl">Current subscribtions</h3>
       <SubscribtionsList />
 
       <CreateSubscribtion />

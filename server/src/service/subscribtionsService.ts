@@ -14,6 +14,10 @@ export function subscribtionsService(
       return [...currentSubscribtions.values()];
     },
     createSubscribtion(subject: string) {
+      if (currentSubscribtions.has(subject)) {
+        throw new Error(`Already have '${subject}' subscribed`);
+      }
+
       currentSubscribtions.add(subject);
 
       nats.subCallback(subject, ({ data }) => {

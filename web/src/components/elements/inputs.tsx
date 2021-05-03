@@ -5,6 +5,8 @@ export type InputProps = InputHTMLAttributes<HTMLInputElement>;
 
 export type TextInputProps = InputProps & {
   label: string;
+  name: string;
+  placeholder: string;
   error?: string;
 };
 
@@ -12,6 +14,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   label,
   name,
   error,
+  placeholder,
   ...props
 }) => {
   return (
@@ -22,10 +25,11 @@ export const TextInput: React.FC<TextInputProps> = ({
       <input
         id={name}
         name={name}
+        placeholder={placeholder}
         className="block w-64 mt-1 bg-gray-900 border-gray-700 rounded-md"
         {...props}
       />
-      <p className="text-red-500">{error}</p>
+      <p className="mt-1 text-red-500">{error}</p>
     </div>
   );
 };

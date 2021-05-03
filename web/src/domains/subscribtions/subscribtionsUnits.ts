@@ -11,6 +11,7 @@ export const createSubForm = createForm({
 });
 
 export const $subscribtions = createStore<string[] | null>(null);
+export const $createSubError = createStore<string>("");
 
 export const createSub = createEvent();
 
