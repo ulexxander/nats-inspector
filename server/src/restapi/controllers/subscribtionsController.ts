@@ -1,7 +1,8 @@
 import { Type } from "@sinclair/typebox";
 import { SubscribtionsService } from "../../service/subscribtionsService";
-import { Serv } from "../../types";
+import { Routes } from "../../types";
 import { validator } from "../../validation";
+import { Controller } from "../endpoints";
 import { result } from "../responses";
 
 const createSubscribtionValidator = validator(
@@ -10,15 +11,17 @@ const createSubscribtionValidator = validator(
   })
 );
 
-export function subscribtionsContoller(service: SubscribtionsService) {
-  return (api: Serv) => {
-    api.get("/subscribtions/all", (_req, res) => {
+export function subscribtionsContoller(
+  service: SubscribtionsService
+): Controller {
+  return (routes: Routes) => {
+    routes.get("/subscribtions/all", (_req, res) => {
       result(res, {
         subscribtions: service.allSubscribtions(),
       });
     });
 
-    api.post("/subscribtions/create", (req, res) => {
+    routes.post("/subscribtions/create", (req, res) => {
       const input = createSubscribtionValidator(req.body);
 
       service.createSubscribtion(input.subject);

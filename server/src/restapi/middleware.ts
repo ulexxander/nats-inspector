@@ -31,7 +31,7 @@ export function bodyParser(): Handler {
 export function requestLog(): Handler {
   return (req, _res, next) => {
     console.log(req.method, req.url);
-    return next();
+    next();
   };
 }
 

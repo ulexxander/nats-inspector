@@ -1,15 +1,9 @@
-import { Handler, Serv } from "../types";
+import { Routes } from "../types";
 
-export function test(): Handler {
-  return (_req, res) => {
-    res.send("test");
-  };
-}
+export type Controller = (router: Routes) => void;
 
-type Controller = (api: Serv) => void;
-
-export function applyControllers(api: Serv, contollers: Controller[]) {
+export function applyControllers(router: Routes, contollers: Controller[]) {
   for (const contoller of contollers) {
-    contoller(api);
+    contoller(router);
   }
 }

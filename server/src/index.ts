@@ -70,7 +70,10 @@ async function main() {
     subscribtions: subscribtionsService(natsClient, wsBroadcaster),
   };
 
-  applyControllers(restapi, [subscribtionsContoller(services.subscribtions)]);
+  const apiRouter = restapi.newRouter();
+  applyControllers(apiRouter, [subscribtionsContoller(services.subscribtions)]);
+
+  restapi.use("/api", apiRouter);
 
   const restapiPort = env("API_SERVER_PORT");
   l({
