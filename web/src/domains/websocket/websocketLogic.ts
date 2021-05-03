@@ -1,4 +1,4 @@
-import { websocketConnectFx } from "./websocketUnits";
+import { websocketConnectFx, websocketMessage } from "./websocketUnits";
 
 websocketConnectFx.use(() => {
   const wsClient = new WebSocket("ws://localhost:4098");
@@ -9,8 +9,9 @@ websocketConnectFx.use(() => {
     console.log("closed ws client");
   };
   wsClient.onmessage = (message) => {
-    const { data } = message;
-    console.log(data);
+    const json = JSON.parse(message.data);
+
+    websocketMessage(json);
   };
   wsClient.onerror = (e) => {
     console.log(e);

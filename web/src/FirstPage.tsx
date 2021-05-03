@@ -4,6 +4,7 @@ import { SubscribtionStructure } from "./api/subscribtionsApi";
 import { FilledButton } from "./components/elements/buttons";
 import { InputReflected } from "./components/elements/inputs";
 import { Page } from "./components/elements/layout";
+import { $subMessages } from "./domains/subMessages/subMessagesUnits";
 import {
   $createSubError,
   $subscribtions,
@@ -65,13 +66,40 @@ const CreateSubscribtion: React.FC = () => {
   );
 };
 
+const SubMessageTile: React.FC<{ data: unknown }> = ({ data }) => {
+  return (
+    <li>
+      <pre>{JSON.stringify(data)}</pre>
+    </li>
+  );
+};
+
+const SubscribtionMessages: React.FC = () => {
+  const messages = useStore($subMessages);
+
+  const messagesList = messages.map((message) => (
+    <SubMessageTile key={message.id} data={message.data} />
+  ));
+
+  return <ul className="mt-4">{messagesList}</ul>;
+};
+
 export const FirstPage: React.FC = () => {
   return (
     <Page>
-      <h3 className="text-xl">Current subscribtions</h3>
-      <SubscribtionsList />
+      <div className="flex space-x-10">
+        <div className="flex-1">
+          <h3 className="text-xl">Current subscribtions</h3>
+          <SubscribtionsList />
 
-      <CreateSubscribtion />
+          <CreateSubscribtion />
+        </div>
+
+        <div className="flex-1">
+          <h3 className="text-xl">Incoming messages</h3>
+          <SubscribtionMessages />
+        </div>
+      </div>
     </Page>
   );
 };
