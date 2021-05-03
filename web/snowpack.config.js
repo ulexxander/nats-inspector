@@ -1,10 +1,10 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
   mount: {
-    public: { url: "/", static: true },
+    public: { url: "/" },
     src: { url: "/dist" },
   },
-  plugins: ["@snowpack/plugin-typescript"],
+  plugins: ["@snowpack/plugin-typescript", "@snowpack/plugin-postcss"],
   packageOptions: {
     /* ... */
   },
