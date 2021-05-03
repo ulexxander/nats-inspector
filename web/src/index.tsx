@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
+import { appInit } from "./domains/appInit/appInitUnits";
+import "./domains/logicInit";
+import { FirstPage } from "./FirstPage";
+import "./tailwind.css";
 
 const App = () => {
-  return <div className="h-screen p-10 text-white bg-gray-800">Test</div>;
+  useEffect(appInit, []);
+
+  return <FirstPage />;
 };
 
 ReactDOM.render(<App />, document.getElementById("app"));
