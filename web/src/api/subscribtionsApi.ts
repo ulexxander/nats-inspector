@@ -1,27 +1,30 @@
+import { NatsSub } from "../../../shared/types";
 import { FormValue } from "../lib/effector-forms";
 import { apiMutation, apiQuery } from "./apiHelpers";
 
-export type SubscribtionStructure = string;
-
-export type CreateSubscriptionPayload = {
+export type SubscriptionPayload = {
   subject: FormValue;
-};
-
-export type CreateSubscriptionResponse = {
-  subscribtions: SubscribtionStructure[];
 };
 
 export const SubscribtionsApi = {
   getAllSubs() {
-    return apiQuery<CreateSubscriptionResponse>("/subscribtions/all", {
+    return apiQuery<NatsSub[]>("/subscribtions/all", {
       method: "GET",
     });
   },
 
-  createSub(payload: CreateSubscriptionPayload) {
-    return apiMutation<CreateSubscriptionResponse>(
+  createSub(payload: SubscriptionPayload) {
+    return apiMutation<NatsSub>(
       "/subscribtions/create",
       { method: "POST" },
+      payload
+    );
+  },
+
+  deleteSub(payload: SubscriptionPayload) {
+    return apiMutation<NatsSub>(
+      "/subscribtions/delete",
+      { method: "DELETE" },
       payload
     );
   },

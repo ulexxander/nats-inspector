@@ -1,36 +1,67 @@
 import { nanoid } from "nanoid";
+import { Subscription } from "nats";
+import { NatsSub } from "../../../shared/types";
 import { NatsClient } from "../nats";
+import { mmap } from "../utils";
 import { WebsocketBroadcaster } from "../websocket/broadcaster";
 
 export type SubscribtionsService = ReturnType<typeof subscribtionsService>;
+
+type NatsSubData = {
+  subscribtion: Subscription;
+  dateCreated: string;
+};
 
 export function subscribtionsService(
   nats: NatsClient,
   websocket: WebsocketBroadcaster
 ) {
-  const currentSubscribtions = new Set<string>();
+  const currentSubs = new Map<string, NatsSubData>();
 
   return {
-    allSubscribtions() {
-      return [...currentSubscribtions.values()];
+    allSubscribtions(): NatsSub[] {
+      return mmap(currentSubs, (subject, { dateCreated }) => ({
+        subject,
+        dateCreated,
+      }));
     },
-    createSubscribtion(subject: string) {
-      if (currentSubscribtions.has(subject)) {
+    createSubscribtion(subject: string): NatsSub {
+      if (currentSubs.has(subject)) {
         throw new Error(`Already have '${subject}' subscribed`);
       }
 
-      currentSubscribtions.add(subject);
-
-      nats.subCallback(subject, ({ data }) => {
-        websocket.subMessage({ id: nanoid(), data });
+      const subscribtion = nats.subscribtion(subject, ({ data, msg }) => {
+        websocket.send({
+          type: "SUB_MESSAGE",
+          payload: {
+            id: nanoid(),
+            subject: msg.subject,
+            data,
+          },
+        });
       });
+
+      const newSub: NatsSubData = {
+        subscribtion,
+        dateCreated: new Date().toISOString(),
+      };
+
+      currentSubs.set(subject, newSub);
+
+      return { subject, dateCreated: newSub.dateCreated };
     },
-    deleteSubscribtion(subject: string) {
-      if (!currentSubscribtions.has(subject)) {
+    deleteSubscribtion(subject: string): NatsSub {
+      const sub = currentSubs.get(subject);
+
+      if (!sub) {
         throw new Error(`No subscribtion for subject ${subject}`);
       }
 
-      currentSubscribtions.delete(subject);
+      sub.subscribtion.unsubscribe();
+
+      currentSubs.delete(subject);
+
+      return { subject, dateCreated: sub.dateCreated };
     },
   };
 }

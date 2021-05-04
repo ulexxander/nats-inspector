@@ -18,7 +18,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   ...props
 }) => {
   return (
-    <div className="mt-3">
+    <div className="mt-4 text-lg">
       <label className="text-gray-300" htmlFor="name">
         {label}
       </label>
@@ -26,7 +26,7 @@ export const TextInput: React.FC<TextInputProps> = ({
         id={name}
         name={name}
         placeholder={placeholder}
-        className="block w-64 mt-1 bg-gray-900 border-gray-700 rounded-md"
+        className="block w-64 h-12 mt-4 border-gray-700 rounded-md form-input bg-blag-900"
         {...props}
       />
       <p className="mt-1 text-red-500">{error}</p>

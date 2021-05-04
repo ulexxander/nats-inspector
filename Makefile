@@ -6,3 +6,12 @@ test-build:
 
 test-up:
 	docker-compose -f test/docker-compose.yml up
+
+test-down:
+	docker-compose -f test/docker-compose.yml down
+
+server-dev:
+	yarn --cwd server dev
+
+gui-dev:
+	yarn --cwd web dev

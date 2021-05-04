@@ -4,13 +4,17 @@ import {
   $subscribtions,
   createSubForm,
   createSubFx,
+  deleteSub,
+  deleteSubFx,
   getAllSubsFx,
 } from "./subscribtionsUnits";
 
-$subscribtions.on(
-  [getAllSubsFx.doneData, createSubFx.doneData],
-  (_, { subscribtions }) => subscribtions
-);
+$subscribtions
+  .on(getAllSubsFx.doneData, (_, subscribtions) => subscribtions)
+  .on(createSubFx.doneData, (subs, newSub) => (subs ? [...subs, newSub] : null))
+  .on(deleteSubFx.doneData, (subs, deleted) =>
+    subs ? subs.filter(({ subject }) => subject !== deleted.subject) : null
+  );
 
 $createSubError
   .on(createSubFx.failData, (_, { message }) => message)
@@ -24,4 +28,9 @@ forward({
 forward({
   from: createSubFx.doneData,
   to: createSubForm.reset,
+});
+
+forward({
+  from: deleteSub,
+  to: deleteSubFx,
 });

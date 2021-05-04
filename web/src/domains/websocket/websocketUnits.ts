@@ -1,20 +1,10 @@
 import { createEffect, createEvent, split } from "effector";
-
-// should be shared
-export type WebsocketSubMessage = {
-  event: "SUB_MESSAGE";
-  payload: {
-    id: string;
-    data: unknown;
-  };
-};
-
-export type WebsocketMessage = WebsocketSubMessage;
+import { WsEvent } from "../../../../shared/types";
 
 export const websocketConnectFx = createEffect();
 
-export const websocketMessage = createEvent<WebsocketMessage>();
+export const websocketMessage = createEvent<WsEvent>();
 
 export const wsMessages = split(websocketMessage, {
-  subMessage: ({ event }) => event === "SUB_MESSAGE",
+  subMessage: ({ type }) => type === "SUB_MESSAGE",
 });

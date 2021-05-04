@@ -1,12 +1,33 @@
 import React, { ButtonHTMLAttributes } from "react";
+import { clazz } from "../../lib/utils";
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
+type FillColor = "red" | "blue";
 
-export const FilledButton: React.FC<ButtonProps> = (props) => {
+const mapFillColorToClass: Record<
+  FillColor,
+  { base: string; hover: string }
+> = {
+  red: { base: "bg-red-500", hover: "hover:bg-red-600" },
+  blue: { base: "bg-blue-500", hover: "hover:bg-blue-600" },
+};
+
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  fillColor: FillColor;
+};
+
+export const FilledButton: React.FC<ButtonProps> = ({
+  fillColor,
+  className,
+  ...props
+}) => {
+  const c = `
+  px-4 py-1 mt-4 text-lg font-semibold tracking-wider
+  uppercase text-white rounded-lg
+  focus:outline-none focus:ring`;
+
+  const fill = mapFillColorToClass[fillColor];
+
   return (
-    <button
-      className="px-4 py-1 mt-3 text-lg font-semibold tracking-wider text-white uppercase bg-blue-500 rounded-lg focus:outline-none focus:ring hover:bg-blue-600"
-      {...props}
-    />
+    <button className={clazz(c, fill.base, fill.hover, className)} {...props} />
   );
 };

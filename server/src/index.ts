@@ -4,9 +4,11 @@ import restana from "restana";
 import { Server as WebsocketServer } from "ws";
 import { l } from "./logs";
 import { createNatsClient } from "./nats";
+import { requestsController } from "./restapi/controllers/requestsController";
 import { subscribtionsContoller } from "./restapi/controllers/subscribtionsController";
 import { applyControllers } from "./restapi/endpoints";
 import { bodyParser, errorHandler, requestLog } from "./restapi/middleware";
+import { requestsService } from "./service/requestsService";
 import { subscribtionsService } from "./service/subscribtionsService";
 import { createBrodcaster } from "./websocket/broadcaster";
 
@@ -27,10 +29,6 @@ async function main() {
   if (env("ENV_FILE", "true") === "true") {
     dotenv.config();
   }
-
-  l({
-    msg: "Opening sqlite database",
-  });
 
   const natsAddress = `${env("NATS_HOST")}:${env("NATS_PORT")}`;
   l({
@@ -72,10 +70,14 @@ async function main() {
 
   const services = {
     subscribtions: subscribtionsService(natsClient, wsBroadcaster),
+    request: requestsService(natsClient),
   };
 
   const apiRouter = restapi.newRouter();
-  applyControllers(apiRouter, [subscribtionsContoller(services.subscribtions)]);
+  applyControllers(apiRouter, [
+    subscribtionsContoller(services.subscribtions),
+    requestsController(services.request),
+  ]);
 
   restapi.use("/api", apiRouter);
 

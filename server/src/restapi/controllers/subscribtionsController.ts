@@ -1,11 +1,10 @@
 import { Type } from "@sinclair/typebox";
 import { SubscribtionsService } from "../../service/subscribtionsService";
-import { Routes } from "../../types";
 import { validator } from "../../validation";
 import { Controller } from "../endpoints";
 import { result } from "../responses";
 
-const createSubscribtionValidator = validator(
+const subscribtionDataValidator = validator(
   Type.Object({
     subject: Type.String({ minLength: 1 }),
   })
@@ -14,21 +13,23 @@ const createSubscribtionValidator = validator(
 export function subscribtionsContoller(
   service: SubscribtionsService
 ): Controller {
-  return (routes: Routes) => {
+  return (routes) => {
     routes.get("/subscribtions/all", (_req, res) => {
-      result(res, {
-        subscribtions: service.allSubscribtions(),
-      });
+      result(res, service.allSubscribtions());
     });
 
     routes.post("/subscribtions/create", (req, res) => {
-      const input = createSubscribtionValidator(req.body);
+      const input = subscribtionDataValidator(req.body);
 
-      service.createSubscribtion(input.subject);
+      const subscribtion = service.createSubscribtion(input.subject);
 
-      result(res, {
-        subscribtions: service.allSubscribtions(),
-      });
+      result(res, subscribtion);
+    });
+
+    routes.delete("/subscribtions/delete", (req, res) => {
+      const input = subscribtionDataValidator(req.body);
+
+      result(res, service.deleteSubscribtion(input.subject));
     });
   };
 }

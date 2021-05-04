@@ -109,6 +109,8 @@ export function createForm<FieldName extends string>(
   });
 
   return {
+    values,
+    updaters,
     send: validate,
     submitted,
     reset,

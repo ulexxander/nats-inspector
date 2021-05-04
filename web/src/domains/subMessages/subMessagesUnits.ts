@@ -1,4 +1,4 @@
 import { createStore } from "effector";
-import { WebsocketSubMessage } from "../websocket/websocketUnits";
+import { WsSubMessageEvent } from "../../../../shared/types";
 
-export const $subMessages = createStore<WebsocketSubMessage["payload"][]>([]);
+export const $subMessages = createStore<WsSubMessageEvent["payload"][]>([]);

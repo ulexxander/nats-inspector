@@ -1,18 +1,14 @@
 import { Server as WebsocketServer } from "ws";
-import { WebsocketEvents } from "../types";
+import { WsEvent } from "../../../shared/types";
 
 export type WebsocketBroadcaster = ReturnType<typeof createBrodcaster>;
 
 export function createBrodcaster(ws: WebsocketServer) {
   return {
-    send(event: WebsocketEvents, payload: unknown) {
+    send(event: WsEvent) {
       ws.clients.forEach((client) => {
-        client.send(JSON.stringify({ event, payload }));
+        client.send(JSON.stringify(event));
       });
-    },
-
-    subMessage(payload: { id: string; data: unknown }) {
-      this.send("SUB_MESSAGE", payload);
     },
   };
 }
