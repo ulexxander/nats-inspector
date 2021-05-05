@@ -30,7 +30,9 @@ async function main() {
   while (true) {
     const now = new Date();
 
-    if (now.getSeconds() % 2 === 0) {
+    const huh = now.getSeconds() % 4;
+
+    if (huh === 0) {
       console.log("node_does_request sending");
 
       const reply = await natsServer.request(
@@ -42,6 +44,14 @@ async function main() {
       );
 
       console.log("node_does_request got response", reply.data.toString());
+    } else if (huh === 1) {
+      natsServer.publish(
+        "long_one",
+        codec.encode({
+          text:
+            "NATS is a connective technology that powers modern distributed systems. A connective technology is responsible for addressing and discovery and exchanging of messages that drive the common patterns in distributed systems; asking and answering questions, aka services/microservices, and making and processing statements, or stream processing.",
+        })
+      );
     } else {
       natsServer.publish("whasup_from_node", codec.encode({ message: "yo" }));
 

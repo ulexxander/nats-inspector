@@ -1,16 +1,14 @@
 import React, { InputHTMLAttributes } from "react";
 import { ReflectableProps } from "../../lib/effector-forms";
 
-export type InputProps = InputHTMLAttributes<HTMLInputElement>;
-
-export type TextInputProps = InputProps & {
+export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   name: string;
   placeholder: string;
   error?: string;
 };
 
-export const TextInput: React.FC<TextInputProps> = ({
+export const Input: React.FC<InputProps> = ({
   label,
   name,
   error,
@@ -26,22 +24,22 @@ export const TextInput: React.FC<TextInputProps> = ({
         id={name}
         name={name}
         placeholder={placeholder}
-        className="block w-64 h-12 mt-4 border-gray-700 rounded-md form-input bg-blag-900"
+        className="block w-64 h-12 mt-2 border-gray-700 rounded-md form-input bg-blues-900"
         {...props}
       />
-      <p className="mt-1 text-red-500">{error}</p>
+      <p className="mt-2 text-red-500">{error}</p>
     </div>
   );
 };
 
-export const InputReflected: React.FC<ReflectableProps & TextInputProps> = ({
+export const InputReflected: React.FC<ReflectableProps & InputProps> = ({
   value,
   update,
   error,
   ...props
 }) => {
   return (
-    <TextInput
+    <Input
       value={value}
       onChange={(e) => update(e.target.value)}
       error={error}

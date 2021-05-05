@@ -1,14 +1,21 @@
-import Editor, { EditorProps } from "@monaco-editor/react";
 import { useStore } from "effector-react";
 import React from "react";
-import { FilledButton } from "../components/elements/buttons";
-import { InputReflected } from "../components/elements/inputs";
+import { OutlinedButton } from "../components/elements/buttons";
+import { Surface } from "../components/elements/containers";
+import { Input } from "../components/elements/inputs";
 import { Page } from "../components/elements/layout";
-import { H2 } from "../components/elements/typography";
+import { JsonEditor } from "../components/JsonEditor";
 import {
+  $previousRequests,
+  $replyString,
+  $requestDataString,
   $requestError,
-  $requestResult,
-  sendRequestForm,
+  $requestSubject,
+  deletePreviousRequest,
+  PreviousRequest,
+  sendRequest,
+  setReplyString,
+  setRequestDataString,
 } from "../domains/requests/requestsUnits";
 
 const RequestError: React.FC = () => {
@@ -16,71 +23,118 @@ const RequestError: React.FC = () => {
 
   return (
     <div>
-      <p className="text-red-500">{error}</p>
+      <p className="mt-4 text-lg text-red-500">{error}</p>
     </div>
   );
 };
 
-const editorPropsBase: EditorProps = {
-  className: "my-4",
-  height: "50vh",
-  defaultLanguage: "json",
-  theme: "vs-dark",
-  options: {
-    tabSize: 2,
-    minimap: {
-      enabled: false,
-    },
-  },
-};
-
-const RequestSubject = sendRequestForm.reflect("subject", InputReflected);
-
-const NewRequest: React.FC = () => {
-  const editorProps: EditorProps = {
-    ...editorPropsBase,
-    value: useStore(sendRequestForm.values["data"]) as string,
-    onChange(val) {
-      sendRequestForm.updaters["data"](val || "");
-    },
-  };
+const RequestSubject: React.FC = () => {
+  const subject = useStore($requestSubject.value);
 
   return (
+    <Input
+      label="Request subject"
+      placeholder="Subject"
+      name="subject"
+      value={subject}
+      onChange={(e) => $requestSubject.update(e.target.value)}
+    />
+  );
+};
+
+const NewRequest: React.FC = () => {
+  return (
     <div className="flex-1">
-      <H2>Request</H2>
+      <h2>Request</h2>
 
-      <Editor {...editorProps} />
-
-      <RequestSubject
-        label="Request subject"
-        placeholder="Subject"
-        name="subject"
+      <JsonEditor
+        initial={$requestDataString.value}
+        onChange={$requestDataString.update}
+        setValue={setRequestDataString}
       />
 
-      <FilledButton fillColor="blue" onClick={() => sendRequestForm.send()}>
+      <RequestSubject />
+
+      <OutlinedButton btnColor="blue" onClick={() => sendRequest()}>
         Send
-      </FilledButton>
+      </OutlinedButton>
     </div>
   );
 };
 
 const ReceivedResponse: React.FC = () => {
-  const reply = useStore($requestResult)?.reply;
-  const replyStringified = JSON.stringify(reply, null, 2);
-
-  const editorProps: EditorProps = {
-    ...editorPropsBase,
-    defaultValue: "// nothing yet",
-    value: replyStringified,
-  };
-
   return (
     <div className="flex-1">
-      <H2>Response</H2>
+      <h2>Response</h2>
 
-      <Editor {...editorProps} />
+      <JsonEditor
+        initial={$replyString.value}
+        onChange={$replyString.update}
+        setValue={setReplyString}
+      />
 
       <RequestError />
+    </div>
+  );
+};
+
+const PreviousRequestTile: React.FC<{ request: PreviousRequest }> = ({
+  request,
+}) => {
+  return (
+    <li className="flex mt-4 space-x-8">
+      <div>
+        <h4>
+          Subject: <span className="text-green-500">{request.subject}</span>
+        </h4>
+        <p className="caption">Created: {request.dateCreated}</p>
+
+        <div className="space-x-4">
+          <OutlinedButton
+            btnColor="green"
+            onClick={() => {
+              setRequestDataString(request.input);
+              setReplyString(request.output);
+              $requestSubject.update(request.subject);
+            }}
+          >
+            Copy
+          </OutlinedButton>
+
+          <OutlinedButton
+            btnColor="red"
+            onClick={() => deletePreviousRequest(request.id)}
+          >
+            Delete
+          </OutlinedButton>
+        </div>
+      </div>
+
+      <table>
+        <tbody>
+          <tr>
+            <th>Input</th>
+            <td className="w-4" />
+            <td className="font-mono">{request.input}</td>
+          </tr>
+        </tbody>
+      </table>
+    </li>
+  );
+};
+
+const PreviousRequests: React.FC = () => {
+  const requests = useStore($previousRequests.value);
+
+  const tiles = requests.map((request) => (
+    <PreviousRequestTile key={request.id} request={request} />
+  ));
+
+  return (
+    <div>
+      <h2>Previous Requests</h2>
+
+      <ul>{tiles}</ul>
     </div>
   );
 };
@@ -88,11 +142,17 @@ const ReceivedResponse: React.FC = () => {
 export const RequestsPage: React.FC = () => {
   return (
     <Page>
-      <div className="flex justify-between space-x-10">
-        <NewRequest />
+      <Surface>
+        <div className="flex justify-between space-x-10">
+          <NewRequest />
 
-        <ReceivedResponse />
-      </div>
+          <ReceivedResponse />
+        </div>
+      </Surface>
+
+      <Surface>
+        <PreviousRequests />
+      </Surface>
     </Page>
   );
 };

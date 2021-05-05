@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.caption {
+  @apply mt-1 text-gray-300;
+}
+
+h2 {
+  @apply text-2xl tracking-wide;
+}
+
+h3 {
+  @apply text-xl tracking-wide;
+}
+
+h4 {
+  @apply text-lg tracking-wide;
+}

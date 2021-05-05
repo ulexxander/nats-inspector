@@ -1,11 +1,10 @@
 import { useStore } from "effector-react";
 import React from "react";
-import { NatsSub, WsSubMessageEvent } from "../../../shared/types";
-import { FilledButton } from ".././components/elements/buttons";
+import { NatsSub } from "../../../shared/types";
+import { OutlinedButton } from ".././components/elements/buttons";
 import { InputReflected } from ".././components/elements/inputs";
 import { Page } from ".././components/elements/layout";
-import { $subMessages } from ".././domains/subMessages/subMessagesUnits";
-import { Caption, H2 } from "../components/elements/typography";
+import { Surface } from "../components/elements/containers";
 import {
   $createSubError,
   $subscribtions,
@@ -17,16 +16,16 @@ const SubscribtionsListTile: React.FC<{ data: NatsSub }> = ({ data }) => {
   return (
     <li className="mt-4">
       <h4>
-        Subject: <b>"{data.subject}"</b>
+        Subject: <span className="text-green-500">{data.subject}</span>
       </h4>
-      <Caption>Created: {data.dateCreated}</Caption>
+      <p className="caption">Created: {data.dateCreated}</p>
 
-      <FilledButton
-        fillColor="red"
+      <OutlinedButton
+        btnColor="red"
         onClick={() => deleteSub({ subject: data.subject })}
       >
         Remove
-      </FilledButton>
+      </OutlinedButton>
     </li>
   );
 };
@@ -35,11 +34,11 @@ const SubscribtionsList: React.FC = () => {
   const subs = useStore($subscribtions);
 
   if (!subs) {
-    return <Caption>Loading...</Caption>;
+    return <p className="caption">Loading...</p>;
   }
 
   if (!subs.length) {
-    return <Caption>No subscribtions...</Caption>;
+    return <p className="caption">No subscribtions...</p>;
   }
 
   const subsList = subs.map((sub) => (
@@ -70,56 +69,23 @@ const CreateSubscribtion: React.FC = () => {
           error={createSubErr}
         />
 
-        <FilledButton type="submit" fillColor="blue">
+        <OutlinedButton type="submit" btnColor="blue">
           Subscribe
-        </FilledButton>
+        </OutlinedButton>
       </form>
     </div>
   );
 };
 
-const SubMessageTile: React.FC<{ message: WsSubMessageEvent["payload"] }> = ({
-  message,
-}) => {
-  return (
-    <li className="flex items-center">
-      <p className="flex-1 mr-3 text-nats-g">{message.subject}</p>
-
-      <pre className="">{JSON.stringify(message.data)}</pre>
-    </li>
-  );
-};
-
-const SubscribtionMessages: React.FC = () => {
-  const messages = useStore($subMessages);
-
-  if (!messages.length) {
-    return <Caption>No messages yet</Caption>;
-  }
-
-  const messagesList = messages.map((message) => (
-    <SubMessageTile key={message.id} message={message} />
-  ));
-
-  return <ul className="mt-4">{messagesList}</ul>;
-};
-
 export const SubscribtionsPage: React.FC = () => {
   return (
     <Page>
-      <div className="flex space-x-10">
-        <div className="flex-1">
-          <H2>Subscribtions</H2>
-          <SubscribtionsList />
+      <Surface>
+        <h2>Subscribtions</h2>
+        <SubscribtionsList />
 
-          <CreateSubscribtion />
-        </div>
-
-        <div className="flex-2">
-          <H2>Incoming messages</H2>
-          <SubscribtionMessages />
-        </div>
-      </div>
+        <CreateSubscribtion />
+      </Surface>
     </Page>
   );
 };

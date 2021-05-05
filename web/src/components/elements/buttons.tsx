@@ -1,33 +1,46 @@
 import React, { ButtonHTMLAttributes } from "react";
 import { clazz } from "../../lib/utils";
 
-type FillColor = "red" | "blue";
+type BtnColor = "red" | "green" | "blue";
 
-const mapFillColorToClass: Record<
-  FillColor,
-  { base: string; hover: string }
-> = {
-  red: { base: "bg-red-500", hover: "hover:bg-red-600" },
-  blue: { base: "bg-blue-500", hover: "hover:bg-blue-600" },
+const mapBtnColorToClass: Record<BtnColor, { border: string; text: string }> = {
+  red: {
+    border: "border-red-400",
+    text: "text-red-400",
+  },
+  green: {
+    border: "border-green-400",
+    text: "text-green-400",
+  },
+  blue: {
+    border: "border-blue-400",
+    text: "text-blue-400",
+  },
 };
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  fillColor: FillColor;
+  btnColor: BtnColor;
 };
 
-export const FilledButton: React.FC<ButtonProps> = ({
-  fillColor,
+export const OutlinedButton: React.FC<ButtonProps> = ({
+  btnColor,
   className,
   ...props
 }) => {
-  const c = `
-  px-4 py-1 mt-4 text-lg font-semibold tracking-wider
-  uppercase text-white rounded-lg
-  focus:outline-none focus:ring`;
-
-  const fill = mapFillColorToClass[fillColor];
+  const color = mapBtnColorToClass[btnColor];
 
   return (
-    <button className={clazz(c, fill.base, fill.hover, className)} {...props} />
+    <button
+      className={clazz(
+        `px-4 py-2 mt-3 tracking-widest
+        uppercase focus:outline-none rounded border
+        hover:bg-blues-700
+        `,
+        color.border,
+        color.text,
+        className
+      )}
+      {...props}
+    />
   );
 };

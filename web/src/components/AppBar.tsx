@@ -29,16 +29,21 @@ const Navbar: React.FC = () => {
       <NavbarLink location={location} to="/subscribtions">
         Subs
       </NavbarLink>
+      <NavbarLink location={location} to="/messages">
+        Messages
+      </NavbarLink>
     </nav>
   );
 };
 
 export const AppBar: React.FC = () => {
   return (
-    <div className="flex justify-between p-4 bg-blag-500">
-      <h2 className="text-3xl font-bold tracking-wider text-nats-n">
-        NATS Inspector
-      </h2>
+    <div className="flex items-center p-4 bg-blues-800">
+      <div className="flex flex-1">
+        <img className="h-10" src="/nats-icon-white.png" alt="NATS" />
+
+        <h2 className="ml-6 text-3xl tracking-wide">NATS Inspector</h2>
+      </div>
 
       <Navbar />
     </div>
