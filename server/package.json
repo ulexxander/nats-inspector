@@ -4,10 +4,12 @@
   "author": "Alexander Ustyugov <ulexxander@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts"
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/node": "^15.0.1",
+    "@types/serve-static": "^1.13.9",
     "@types/ws": "^7.4.2",
     "dotenv": "^8.2.0",
     "nodemon": "^2.0.7",
@@ -20,6 +22,7 @@
     "nanoid": "^3.1.22",
     "nats": "^2.0.2",
     "restana": "^4.9.1",
+    "serve-static": "^1.14.1",
     "ws": "^7.4.5"
   }
 }

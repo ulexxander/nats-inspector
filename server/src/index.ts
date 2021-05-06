@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import { connect as natsConnect, JSONCodec } from "nats";
 import restana from "restana";
 import { Server as WebsocketServer } from "ws";
@@ -7,7 +6,13 @@ import { createNatsClient } from "./nats";
 import { requestsController } from "./restapi/controllers/requestsController";
 import { subscribtionsContoller } from "./restapi/controllers/subscribtionsController";
 import { applyControllers } from "./restapi/endpoints";
-import { bodyParser, errorHandler, requestLog } from "./restapi/middleware";
+import {
+  bodyParser,
+  errorHandler,
+  requestLog,
+  serveWebDist,
+  serveWebIndex,
+} from "./restapi/middleware";
 import { requestsService } from "./service/requestsService";
 import { subscribtionsService } from "./service/subscribtionsService";
 import { createBrodcaster } from "./websocket/broadcaster";
@@ -27,7 +32,7 @@ function env(key: string, fallback?: string) {
 
 async function main() {
   if (env("ENV_FILE", "true") === "true") {
-    dotenv.config();
+    require("dotenv").config();
   }
 
   const natsAddress = `${env("NATS_HOST")}:${env("NATS_PORT")}`;
@@ -52,7 +57,7 @@ async function main() {
   });
 
   wsServer.on("connection", () => {
-    l({ msg: "Incoming websocket connection" });
+    l({ msg: "Client estabilished websocket connection" });
   });
 
   const wsBroadcaster = createBrodcaster(wsServer);
@@ -80,6 +85,9 @@ async function main() {
   ]);
 
   restapi.use("/api", apiRouter);
+
+  restapi.use(serveWebDist());
+  restapi.use("*", serveWebIndex());
 
   const restapiPort = env("API_SERVER_PORT");
   l({

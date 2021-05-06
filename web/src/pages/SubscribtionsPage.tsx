@@ -38,7 +38,7 @@ const SubscribtionsList: React.FC = () => {
   }
 
   if (!subs.length) {
-    return <p className="caption">No subscribtions...</p>;
+    return <p className="caption">No subscribtions yet</p>;
   }
 
   const subsList = subs.map((sub) => (

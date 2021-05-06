@@ -1,4 +1,8 @@
+import { createReadStream } from "fs";
+import path from "path";
+import serveStatic from "serve-static";
 import { wrap } from "../errors";
+import { l } from "../logs";
 import { Handler } from "../types";
 import { ValidationError } from "../validation";
 import { internalError, unprocessable } from "./responses";
@@ -30,7 +34,11 @@ export function bodyParser(): Handler {
 
 export function requestLog(): Handler {
   return (req, _res, next) => {
-    console.log(req.method, req.url);
+    l({
+      msg: "Incoming http request",
+      method: req.method,
+      url: req.url,
+    });
     next();
   };
 }
@@ -63,5 +71,21 @@ export function errorHandler(): Handler {
         internalError(res, err.message);
       }
     }
+  };
+}
+
+export function serveWebDist() {
+  const distPath = path.join(__dirname, "../../../web/dist");
+
+  return serveStatic(distPath);
+}
+
+export function serveWebIndex(): Handler {
+  const indexPath = path.join(__dirname, "../../../web/dist/index.html");
+
+  return (_req, res) => {
+    const stream = createReadStream(indexPath);
+    res.setHeader("content-type", "text/html; charset=utf-8");
+    stream.pipe(res);
   };
 }

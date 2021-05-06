@@ -1,17 +1,7 @@
 .PHONY: all
 
-test-build:
-	docker build -t goservice test/goservice
-	docker build -t nodeservice test/nodeservice
+inspector-build:
+	docker build -t nats-inspector .
 
-test-up:
-	docker-compose -f test/docker-compose.yml up
-
-test-down:
-	docker-compose -f test/docker-compose.yml down
-
-server-dev:
-	yarn --cwd server dev
-
-gui-dev:
-	yarn --cwd web dev
+inspector-up:
+	docker-compose up --remove-orphans

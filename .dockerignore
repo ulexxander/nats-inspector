@@ -1,0 +1,16 @@
+*
+!shared/
+!server/src/
+!server/dist/
+
+!web/src
+!web/public
+!web/dist
+!web/index.html
+!web/postcss.config.js
+!web/tailwind.config.js
+!web/vite.config.ts
+
+!*/tsconfig.json
+!*/package.json
+!*/yarn.lock
