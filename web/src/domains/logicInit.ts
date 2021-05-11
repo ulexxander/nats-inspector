@@ -1,5 +1,5 @@
 import "./appInit/appInitLogic";
 import "./requests/requestsLogic";
 import "./subMessages/subMessagesLogic";
-import "./subscribtions/subscribtionsLogic";
+import "./subscriptions/subscriptionsLogic";
 import "./websocket/websocketLogic";

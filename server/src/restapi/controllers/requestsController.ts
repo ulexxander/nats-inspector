@@ -1,24 +1,34 @@
 import { Type } from "@sinclair/typebox";
-import { RequestsService } from "../../service/requestsService";
+import { NatsClient } from "../../nats/natsClient";
 import { validator } from "../../validation";
 import { Controller } from "../endpoints";
 import { result } from "../responses";
+import { Routes } from "../restapiTypedefs";
 
-const sendReqeustValidator = validator(
+const sendReqeustInputValidator = validator(
   Type.Object({
+    server: Type.String({ minLength: 1 }),
     subject: Type.String({ minLength: 1 }),
     data: Type.Any(),
-  })
+  }),
 );
 
-export function requestsController(service: RequestsService): Controller {
-  return (routes) => {
-    routes.post("/requests/send", async (req, res) => {
-      const input = sendReqeustValidator(req.body);
+export class RequestsController implements Controller {
+  path = "/requests";
 
-      const response = await service.sendRequest(input.subject, input.data);
+  constructor(private natsClient: NatsClient) {}
+
+  register(routes: Routes): void {
+    routes.post("/send", async (req, res) => {
+      const input = sendReqeustInputValidator(req.body);
+
+      const response = await this.natsClient.request(
+        input.server,
+        input.subject,
+        input.data,
+      );
 
       result(res, response);
     });
-  };
+  }
 }

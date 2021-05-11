@@ -1,5 +1,5 @@
 import { forward } from "effector";
-import { getAllSubsFx } from "../subscribtions/subscribtionsUnits";
+import { getAllSubsFx } from "../subscriptions/subscriptionsUnits";
 import { websocketConnectFx } from "../websocket/websocketUnits";
 import { appInit } from "./appInitUnits";
 

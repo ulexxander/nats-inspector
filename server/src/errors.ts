@@ -1,11 +1,9 @@
-export function wrap(err: Error, message: string) {
-  if (err.message) {
-    return `${message}: ${err.message}`;
-  }
+export function errtext(err: Error): string {
+  return `${err.name}(${err.message})`;
+}
 
-  if (err.name) {
-    return `${message}: ${err.name}`;
-  }
+export function wrap(err: Error, message: string): string {
+  const text = errtext(err);
 
-  return `${message}: Unknown error`;
+  return `${message}: ${text}`;
 }

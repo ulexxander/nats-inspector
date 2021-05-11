@@ -1,11 +1,11 @@
 import { createReadStream } from "fs";
 import path from "path";
 import serveStatic from "serve-static";
-import { wrap } from "../errors";
+import { errtext, wrap } from "../errors";
 import { l } from "../logs";
-import { Handler } from "../types";
 import { ValidationError } from "../validation";
 import { internalError, unprocessable } from "./responses";
+import { Handler } from "./restapiTypedefs";
 
 export function bodyParser(): Handler {
   return (req, res, next) => {
@@ -68,7 +68,7 @@ export function errorHandler(): Handler {
 
         unprocessable(res, `${firstErr.instancePath}: ${firstErr.message}`);
       } else {
-        internalError(res, err.message);
+        internalError(res, errtext(err));
       }
     }
   };
@@ -76,7 +76,6 @@ export function errorHandler(): Handler {
 
 export function serveWebDist() {
   const distPath = path.join(__dirname, "../../../web/dist");
-
   return serveStatic(distPath);
 }
 

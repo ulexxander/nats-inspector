@@ -1,19 +1,19 @@
 import { forward } from "effector";
 import {
   $createSubError,
-  $subscribtions,
+  $subscriptions,
   createSubForm,
   createSubFx,
   deleteSub,
   deleteSubFx,
   getAllSubsFx,
-} from "./subscribtionsUnits";
+} from "./subscriptionsUnits";
 
-$subscribtions
-  .on(getAllSubsFx.doneData, (_, subscribtions) => subscribtions)
+$subscriptions
+  .on(getAllSubsFx.doneData, (_, subscriptions) => subscriptions)
   .on(createSubFx.doneData, (subs, newSub) => (subs ? [...subs, newSub] : null))
   .on(deleteSubFx.doneData, (subs, deleted) =>
-    subs ? subs.filter(({ subject }) => subject !== deleted.subject) : null
+    subs ? subs.filter(({ subject }) => subject !== deleted.subject) : null,
   );
 
 $createSubError

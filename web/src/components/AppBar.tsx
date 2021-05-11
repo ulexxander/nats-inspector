@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
       <NavbarLink location={location} to="/requests">
         Requests
       </NavbarLink>
-      <NavbarLink location={location} to="/subscribtions">
+      <NavbarLink location={location} to="/subscriptions">
         Subs
       </NavbarLink>
       <NavbarLink location={location} to="/messages">

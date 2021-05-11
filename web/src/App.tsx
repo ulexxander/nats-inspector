@@ -5,7 +5,7 @@ import { appInit } from "./domains/appInit/appInitUnits";
 import { loadRoutes, RouterView } from "./lib/effector-router";
 import { MessagesPage } from "./pages/MessagesPage";
 import { RequestsPage } from "./pages/RequestsPage";
-import { SubscribtionsPage } from "./pages/SubscribtionsPage";
+import { SubscriptionsPage } from "./pages/SubscriptionsPage";
 
 const NotFoundPage: React.FC = () => {
   return <Page>Stuff not found, click on those links in the appbar</Page>;
@@ -30,8 +30,8 @@ loadRoutes([
     view: RequestsPage,
   },
   {
-    path: "/subscribtions",
-    view: SubscribtionsPage,
+    path: "/subscriptions",
+    view: SubscriptionsPage,
   },
   {
     path: "/messages",

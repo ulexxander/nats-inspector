@@ -6,16 +6,16 @@ export type SubscriptionPayload = {
   subject: FormValue;
 };
 
-export const SubscribtionsApi = {
+export const SubscriptionsApi = {
   getAllSubs() {
-    return apiQuery<NatsSub[]>("/subscribtions/all", {
+    return apiQuery<NatsSub[]>("/subscriptions/all", {
       method: "GET",
     });
   },
 
   createSub(payload: SubscriptionPayload) {
     return apiMutation<NatsSub>(
-      "/subscribtions/create",
+      "/subscriptions/create",
       { method: "POST" },
       payload
     );
@@ -23,7 +23,7 @@ export const SubscribtionsApi = {
 
   deleteSub(payload: SubscriptionPayload) {
     return apiMutation<NatsSub>(
-      "/subscribtions/delete",
+      "/subscriptions/delete",
       { method: "DELETE" },
       payload
     );

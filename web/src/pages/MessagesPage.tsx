@@ -17,7 +17,7 @@ const SubMessageTile: React.FC<{ message: WsSubMessageEvent["payload"] }> = ({
   );
 };
 
-const SubscribtionMessages: React.FC = () => {
+const SubscriptionMessages: React.FC = () => {
   const messages = useStore($subMessages);
 
   if (!messages.length) {
@@ -40,7 +40,7 @@ export const MessagesPage: React.FC = () => {
     <Page>
       <Surface>
         <h2>Incoming messages</h2>
-        <SubscribtionMessages />
+        <SubscriptionMessages />
       </Surface>
     </Page>
   );

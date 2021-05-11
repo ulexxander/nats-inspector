@@ -1,4 +1,4 @@
-import { Res } from "../types";
+import { Res } from "./restapiTypedefs";
 
 export function err(res: Res, message: string, code: number) {
   res.send({ error: message }, code);

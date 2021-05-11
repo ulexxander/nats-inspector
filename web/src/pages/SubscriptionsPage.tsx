@@ -1,18 +1,18 @@
 import { useStore } from "effector-react";
 import React from "react";
 import { NatsSub } from "../../../shared/types";
-import { OutlinedButton } from ".././components/elements/buttons";
-import { InputReflected } from ".././components/elements/inputs";
-import { Page } from ".././components/elements/layout";
+import { OutlinedButton } from "../components/elements/buttons";
 import { Surface } from "../components/elements/containers";
+import { InputReflected } from "../components/elements/inputs";
+import { Page } from "../components/elements/layout";
 import {
   $createSubError,
-  $subscribtions,
+  $subscriptions,
   createSubForm,
   deleteSub,
-} from "../domains/subscribtions/subscribtionsUnits";
+} from "../domains/subscriptions/subscriptionsUnits";
 
-const SubscribtionsListTile: React.FC<{ data: NatsSub }> = ({ data }) => {
+const SubscriptionsListTile: React.FC<{ data: NatsSub }> = ({ data }) => {
   return (
     <li className="mt-4">
       <h4>
@@ -30,27 +30,27 @@ const SubscribtionsListTile: React.FC<{ data: NatsSub }> = ({ data }) => {
   );
 };
 
-const SubscribtionsList: React.FC = () => {
-  const subs = useStore($subscribtions);
+const SubscriptionsList: React.FC = () => {
+  const subs = useStore($subscriptions);
 
   if (!subs) {
     return <p className="caption">Loading...</p>;
   }
 
   if (!subs.length) {
-    return <p className="caption">No subscribtions yet</p>;
+    return <p className="caption">No subscriptions yet</p>;
   }
 
   const subsList = subs.map((sub) => (
-    <SubscribtionsListTile key={sub.subject} data={sub} />
+    <SubscriptionsListTile key={sub.subject} data={sub} />
   ));
 
   return <ol className="mt-4 ml-4 list-decimal">{subsList}</ol>;
 };
 
-const SubscribtionSubject = createSubForm.reflect("subject", InputReflected);
+const SubscriptionSubject = createSubForm.reflect("subject", InputReflected);
 
-const CreateSubscribtion: React.FC = () => {
+const CreateSubscription: React.FC = () => {
   const createSubErr = useStore($createSubError);
 
   return (
@@ -61,10 +61,10 @@ const CreateSubscribtion: React.FC = () => {
           createSubForm.send();
         }}
       >
-        <SubscribtionSubject
+        <SubscriptionSubject
           type="text"
           name="subject"
-          label="Add new subscribtion"
+          label="Add new subscription"
           placeholder="Subject"
           error={createSubErr}
         />
@@ -77,14 +77,14 @@ const CreateSubscribtion: React.FC = () => {
   );
 };
 
-export const SubscribtionsPage: React.FC = () => {
+export const SubscriptionsPage: React.FC = () => {
   return (
     <Page>
       <Surface>
-        <h2>Subscribtions</h2>
-        <SubscribtionsList />
+        <h2>Subscriptions</h2>
+        <SubscriptionsList />
 
-        <CreateSubscribtion />
+        <CreateSubscription />
       </Surface>
     </Page>
   );
