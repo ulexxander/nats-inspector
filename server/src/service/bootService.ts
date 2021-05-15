@@ -1,4 +1,4 @@
-import { Database } from "../database/databaseTypedefs";
+import { DatabaseQueries } from "../database/queries";
 import { l } from "../logs";
 import { NatsClient } from "../nats/natsClient";
 import { batch } from "../utils";
@@ -6,11 +6,11 @@ import { batch } from "../utils";
 export class BootService {
   constructor(
     private readonly natsClient: NatsClient,
-    private readonly database: Database,
+    private readonly db: DatabaseQueries,
   ) {}
 
   async restoreConnections() {
-    const conns = this.database.get("connections").value();
+    const conns = this.db.selectAllConnections();
 
     if (!conns.length) {
       return;
@@ -24,11 +24,7 @@ export class BootService {
     const jobs = batch();
 
     for (const conn of conns) {
-      jobs.add(
-        this.natsClient.addConnection(
-          conn.server.host + ":" + conn.server.port,
-        ),
-      );
+      jobs.add(this.natsClient.addConnection(conn.host + ":" + conn.port));
     }
 
     await jobs.wait();

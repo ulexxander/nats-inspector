@@ -1,34 +1,32 @@
-import { ConnectionStructure, Database } from "../database/databaseTypedefs";
+import { ConnectionModel } from "../database/models";
+import { DatabaseQueries } from "../database/queries";
 import { NatsClient } from "../nats/natsClient";
 
-export type CreateConnectionInput = Omit<
-  ConnectionStructure,
-  "dateCreated" | "dateUpdated"
+export type CreateConnectionInput = Pick<
+  ConnectionModel,
+  "title" | "description" | "host" | "port"
 >;
 
 export class ConnectionsService {
   constructor(
     private readonly natsClient: NatsClient,
-    private readonly database: Database,
+    private readonly db: DatabaseQueries,
   ) {}
 
   async createConnection(input: CreateConnectionInput) {
-    await this.natsClient.addConnection(
-      input.server.host + ":" + input.server.port,
-    );
+    await this.natsClient.addConnection(input.host + ":" + input.port);
 
-    const createdConn: ConnectionStructure = {
-      ...input,
-      dateCreated: new Date().toISOString(),
-    };
-
-    this.database.get("connections").push(createdConn);
-    this.database.save();
+    const createdConn = this.db.insertConnection({
+      title: input.title,
+      description: input.description,
+      host: input.host,
+      port: input.port,
+    });
 
     return createdConn;
   }
 
   getConnections() {
-    return this.database.get("connections");
+    return this.db.selectAllConnections();
   }
 }

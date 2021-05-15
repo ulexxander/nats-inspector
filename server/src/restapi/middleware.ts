@@ -1,7 +1,7 @@
 import { createReadStream } from "fs";
 import path from "path";
 import serveStatic from "serve-static";
-import { errtext, wrap } from "../errors";
+import { errtext } from "../errors";
 import { l } from "../logs";
 import { ValidationError } from "../validation";
 import { internalError, unprocessable } from "./responses";
@@ -26,7 +26,7 @@ export function bodyParser(): Handler {
         req.body = parsedBody;
         next();
       } catch (err) {
-        unprocessable(res, wrap(err, "Can not parse body"));
+        unprocessable(res, errtext(err, "Can not parse body"));
       }
     });
   };

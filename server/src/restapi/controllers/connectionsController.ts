@@ -12,10 +12,8 @@ const createConnectionInputValidator = validator(
   Type.Object({
     title: Type.String(),
     description: Type.Optional(Type.String()),
-    server: Type.Object({
-      host: Type.String(),
-      port: Type.Number(),
-    }),
+    host: Type.String(),
+    port: Type.Number(),
   }),
 );
 

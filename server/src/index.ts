@@ -1,11 +1,11 @@
+import SQLite from "better-sqlite3";
 import { JSONCodec } from "nats";
 import { createServer } from "node:http";
 import restana from "restana";
-import StormDB from "stormdb";
 import Websocket from "ws";
 import { env } from "./config/environment";
-import { DatabaseLayer } from "./database/databaseLayer";
-import { DatabaseSchema } from "./database/databaseTypedefs";
+import { DatabaseMigrations } from "./database/migrations";
+import { databaseQueries } from "./database/queries";
 import { l } from "./logs";
 import { NatsClient } from "./nats/natsClient";
 import { setupProcess } from "./process";
@@ -45,19 +45,21 @@ async function main() {
   const wsBroadcaster = new WebsocketBroadcaster(wsServer);
 
   l({
-    msg: "Loading file based database",
+    msg: "Loading sqlite3 database",
   });
-  const databaseClient = new DatabaseLayer<DatabaseSchema>(
-    new StormDB.localFileEngine("./db.stormdb"),
-  );
+  const sqlite = new SQLite("data/database.sqlite3");
+  const migrations = new DatabaseMigrations(sqlite);
+  await migrations.run();
+
+  const dbQueries = databaseQueries(sqlite);
 
   l({
     msg: "Perfoming boot procedures",
   });
-  const bootService = new BootService(natsClient, databaseClient);
+  const bootService = new BootService(natsClient, dbQueries);
   await bootService.restoreConnections();
 
-  const connectionsService = new ConnectionsService(natsClient, databaseClient);
+  const connectionsService = new ConnectionsService(natsClient, dbQueries);
 
   const subscriptionsService = new SubscriptionsService(
     natsClient,
@@ -67,8 +69,7 @@ async function main() {
   const app = restana({
     server: httpServer,
     errorHandler(err) {
-      // forward error to the errorHandler middleware
-      throw err;
+      throw err; // forward error to the errorHandler middleware
     },
   });
 
