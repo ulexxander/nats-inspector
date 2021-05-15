@@ -1,12 +1,14 @@
 import { JSONCodec } from "nats";
+import { createServer } from "node:http";
 import restana from "restana";
 import StormDB from "stormdb";
-import { Server as WebsocketServer } from "ws";
+import Websocket from "ws";
 import { env } from "./config/environment";
 import { DatabaseLayer } from "./database/databaseLayer";
 import { DatabaseSchema } from "./database/databaseTypedefs";
 import { l } from "./logs";
 import { NatsClient } from "./nats/natsClient";
+import { setupProcess } from "./process";
 import { ConnectionsController } from "./restapi/controllers/connectionsController";
 import { RequestsController } from "./restapi/controllers/requestsController";
 import { SubscriptionsController } from "./restapi/controllers/subscriptionsController";
@@ -24,39 +26,26 @@ import { SubscriptionsService } from "./service/subscriptionsService";
 import { WebsocketBroadcaster } from "./websocket/broadcaster";
 
 async function main() {
+  setupProcess();
+
   if (env("ENV_FILE", "true") === "true") {
     require("dotenv").config();
   }
 
-  const websocketPort = env("WS_SERVER_PORT");
+  const natsClient = new NatsClient(JSONCodec());
+  const httpServer = createServer();
+
   l({
     msg: "Creating websocket server",
-    port: websocketPort,
   });
-  const wsServer = new WebsocketServer({
-    port: +websocketPort,
-  });
-  wsServer.on("connection", () => {
-    l({ msg: "Client estabilished websocket connection" });
+  const wsServer = new Websocket.Server({
+    server: httpServer,
   });
 
   const wsBroadcaster = new WebsocketBroadcaster(wsServer);
 
-  const httpServ = restana({
-    errorHandler(err) {
-      // forward error to the errorHandler middleware
-      throw err;
-    },
-  });
-
-  httpServ.use(requestLog());
-  httpServ.use(bodyParser());
-  httpServ.use(errorHandler());
-
-  const natsClient = new NatsClient(JSONCodec());
-
   l({
-    msg: "Loading json file database client",
+    msg: "Loading file based database",
   });
   const databaseClient = new DatabaseLayer<DatabaseSchema>(
     new StormDB.localFileEngine("./db.stormdb"),
@@ -75,20 +64,32 @@ async function main() {
     wsBroadcaster,
   );
 
-  applyControllers(httpServ, [
+  const app = restana({
+    server: httpServer,
+    errorHandler(err) {
+      // forward error to the errorHandler middleware
+      throw err;
+    },
+  });
+
+  app.use(requestLog());
+  app.use(bodyParser());
+  app.use(errorHandler());
+
+  applyControllers(app, [
     new ConnectionsController(connectionsService),
     new RequestsController(natsClient),
     new SubscriptionsController(subscriptionsService),
   ]);
 
-  httpServ.get("*", serveWebDist(), serveWebIndex());
+  app.get("*", serveWebDist(), serveWebIndex());
 
-  const httpPort = env("HTTP_SERVER_PORT");
+  const serverPort = env("SERVER_PORT", "80");
   l({
     msg: "Starting http server",
-    port: httpPort,
+    port: serverPort,
   });
-  await httpServ.start(+httpPort);
+  httpServer.listen(+serverPort);
 }
 
 main().catch((err) => {

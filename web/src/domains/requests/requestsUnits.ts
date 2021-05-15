@@ -1,6 +1,6 @@
 import { createEffect, createEvent, createStore } from "effector";
 import { RequestsApi, SendRequestResponse } from "../../api/requestsApi";
-import { createPersistentStore } from "../../lib/effector-localstorage";
+import { persistJSON, persistText } from "../../lib/effector-localstorage";
 
 export type PreviousRequest = {
   id: string;
@@ -11,57 +11,28 @@ export type PreviousRequest = {
 };
 
 export const $requestResult = createStore<SendRequestResponse | null>(null);
-export const $requestError = createStore<string>("");
+export const $requestError = createStore("");
 
-export const $requestSubject = createPersistentStore({
-  key: "request_subject",
-  initialState: "",
-  marshal(state) {
-    return state;
-  },
-  unmarshal(state) {
-    return state;
-  },
-});
+export const $requestSubject = createStore("");
+persistText("request_subject", $requestSubject);
 
-export const $requestDataString = createPersistentStore({
-  key: "request_data",
-  initialState: "{}",
-  marshal(state) {
-    return state;
-  },
-  unmarshal(state) {
-    return state;
-  },
-});
+export const $requestInput = createStore("{}");
+persistText("request_input", $requestInput);
 
-export const $replyString = createPersistentStore({
-  key: "request_result",
-  initialState: "// nothing yet",
-  marshal(state) {
-    return state;
-  },
-  unmarshal(state) {
-    return state;
-  },
-});
+export const $requestOutput = createStore("// nothing yet");
+persistText("request_output", $requestOutput);
 
-export const $previousRequests = createPersistentStore<PreviousRequest[]>({
-  key: "previous_requests",
-  initialState: [],
-  marshal(state) {
-    return JSON.stringify(state.slice(0, 20));
-  },
-  unmarshal(rawState) {
-    return JSON.parse(rawState);
-  },
-});
+export const $previousRequests = createStore<PreviousRequest[]>([]);
+persistJSON("previous_requests", $previousRequests);
 
 export const sendRequest = createEvent();
-
 export const sendRequestFx = createEffect(RequestsApi.sendRequest);
 
-export const setRequestDataString = createEvent<string>();
-export const setReplyString = createEvent<string>();
+export const setRequestSubject = createEvent<string>();
+export const setRequestInput = createEvent<string>();
+export const setRequestOutput = createEvent<string>();
+
+export const copyRequestInput = createEvent<string>();
+export const copyRequestOutput = createEvent<string>();
 
 export const deletePreviousRequest = createEvent<string>();

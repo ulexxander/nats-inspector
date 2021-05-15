@@ -1,14 +1,14 @@
-import { Routes, Serv } from "./restapiTypedefs";
+import { Routes, Server } from "./restapiTypedefs";
 
 export interface Controller {
   path: string;
   register(routes: Routes): void;
 }
 
-export function applyControllers(service: Serv, contollers: Controller[]) {
+export function applyControllers(server: Server, contollers: Controller[]) {
   for (const contoller of contollers) {
-    const router = service.newRouter();
+    const router = server.newRouter();
     contoller.register(router);
-    service.use("/api" + contoller.path, router);
+    server.use("/api" + contoller.path, router);
   }
 }

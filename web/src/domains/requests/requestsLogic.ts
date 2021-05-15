@@ -2,58 +2,54 @@ import { forward, sample } from "effector";
 import { nanoid } from "nanoid";
 import {
   $previousRequests,
-  $requestDataString,
   $requestError,
+  $requestInput,
+  $requestOutput,
   $requestSubject,
+  copyRequestOutput,
   deletePreviousRequest,
   sendRequest,
   sendRequestFx,
-  setReplyString,
+  setRequestInput,
+  setRequestOutput,
+  setRequestSubject,
 } from "./requestsUnits";
 
 $requestError
   .on(sendRequestFx.failData, (_, { message }) => message)
   .reset(sendRequestFx);
 
+$requestSubject.on(setRequestSubject, (_, reqSubject) => reqSubject);
+$requestInput.on(setRequestInput, (_, reqInput) => reqInput);
+$requestOutput.on(setRequestOutput, (_, reqOutput) => reqOutput);
+
 sample({
   clock: sendRequest,
   source: {
-    subject: $requestSubject.value,
-    data: $requestDataString.value,
+    subject: $requestSubject,
+    data: $requestInput,
   },
   target: sendRequestFx,
 });
 
 forward({
   from: sendRequestFx.doneData.map((res) =>
-    res ? JSON.stringify(res.reply, null, 2) : "// nothing for now"
+    res ? JSON.stringify(res.reply, null, 2) : "// nothing for now",
   ),
-  to: setReplyString,
+  to: copyRequestOutput,
 });
 
-sample({
-  clock: sendRequestFx.done,
-  source: $previousRequests.value,
-  fn(prev, { params, result }) {
-    return [
-      {
-        id: nanoid(),
-        subject: params.subject as string,
-        input: params.data as string,
-        output: JSON.stringify(result.reply, null, 2),
-        dateCreated: new Date().toISOString(),
-      },
-      ...prev,
-    ];
+$previousRequests.on(sendRequestFx.done, (prevRequests, { params, result }) => [
+  {
+    id: nanoid(),
+    subject: params.subject as string,
+    input: params.data as string,
+    output: JSON.stringify(result.reply, null, 2),
+    dateCreated: new Date().toISOString(),
   },
-  target: $previousRequests.update,
-});
+  ...prevRequests,
+]);
 
-sample({
-  clock: deletePreviousRequest,
-  source: $previousRequests.value,
-  fn(requests, idToDelete) {
-    return requests.filter((req) => req.id !== idToDelete);
-  },
-  target: $previousRequests.update,
-});
+$previousRequests.on(deletePreviousRequest, (requests, idToDelete) =>
+  requests.filter((req) => req.id !== idToDelete),
+);

@@ -75,12 +75,12 @@ export function errorHandler(): Handler {
 }
 
 export function serveWebDist() {
-  const distPath = path.join(__dirname, "../../../web/dist");
+  const distPath = path.join(process.cwd(), "../web/dist");
   return serveStatic(distPath);
 }
 
 export function serveWebIndex(): Handler {
-  const indexPath = path.join(__dirname, "../../../web/dist/index.html");
+  const indexPath = path.join(process.cwd(), "../web/dist/index.html");
 
   return (_req, res) => {
     const stream = createReadStream(indexPath);

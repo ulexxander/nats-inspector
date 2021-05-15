@@ -1,7 +1,31 @@
 import { websocketConnectFx, websocketMessage } from "./websocketUnits";
 
+function websocketUrl() {
+  // @ts-ignore
+  if (import.meta.env.DEV) {
+    // @ts-ignore
+    return DEV_WEBSOCKET_URL;
+  }
+
+  switch (window.location.protocol) {
+    case "http:": {
+      return "ws://" + window.location.host;
+    }
+    case "https:": {
+      return "wss:" + window.location.host;
+    }
+    default: {
+      throw new Error(`Unexpected protocol: ${window.location.protocol}`);
+    }
+  }
+}
+
 websocketConnectFx.use(() => {
-  const wsClient = new WebSocket("ws://localhost:4098");
+  const url = websocketUrl();
+  console.log("connecting to websocket", url);
+
+  const wsClient = new WebSocket(url);
+
   wsClient.onopen = () => {
     console.log("opened ws client");
   };
@@ -10,10 +34,9 @@ websocketConnectFx.use(() => {
   };
   wsClient.onmessage = (message) => {
     const json = JSON.parse(message.data);
-
     websocketMessage(json);
   };
   wsClient.onerror = (e) => {
-    console.log(e);
+    console.log("websocket error", e);
   };
 });

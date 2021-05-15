@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/codemirror": "^0.0.109",

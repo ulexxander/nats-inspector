@@ -7,19 +7,26 @@ import { Page } from "../components/elements/layout";
 import { JsonEditor } from "../components/JsonEditor";
 import {
   $previousRequests,
-  $replyString,
-  $requestDataString,
   $requestError,
+  $requestInput,
+  $requestOutput,
   $requestSubject,
+  copyRequestInput,
+  copyRequestOutput,
   deletePreviousRequest,
   PreviousRequest,
   sendRequest,
-  setReplyString,
-  setRequestDataString,
+  setRequestInput,
+  setRequestOutput,
+  setRequestSubject,
 } from "../domains/requests/requestsUnits";
 
 const RequestError: React.FC = () => {
   const error = useStore($requestError);
+
+  if (!error) {
+    return null;
+  }
 
   return (
     <div>
@@ -29,7 +36,7 @@ const RequestError: React.FC = () => {
 };
 
 const RequestSubject: React.FC = () => {
-  const subject = useStore($requestSubject.value);
+  const subject = useStore($requestSubject);
 
   return (
     <Input
@@ -37,7 +44,7 @@ const RequestSubject: React.FC = () => {
       placeholder="Subject"
       name="subject"
       value={subject}
-      onChange={(e) => $requestSubject.update(e.target.value)}
+      onChange={(e) => setRequestSubject(e.target.value)}
     />
   );
 };
@@ -48,9 +55,9 @@ const NewRequest: React.FC = () => {
       <h2>Request</h2>
 
       <JsonEditor
-        initial={$requestDataString.value}
-        onChange={$requestDataString.update}
-        setValue={setRequestDataString}
+        initial={$requestInput}
+        onChange={setRequestInput}
+        setValue={copyRequestInput}
       />
 
       <RequestSubject />
@@ -68,9 +75,9 @@ const ReceivedResponse: React.FC = () => {
       <h2>Response</h2>
 
       <JsonEditor
-        initial={$replyString.value}
-        onChange={$replyString.update}
-        setValue={setReplyString}
+        initial={$requestOutput}
+        onChange={setRequestOutput}
+        setValue={copyRequestOutput}
       />
 
       <RequestError />
@@ -93,9 +100,9 @@ const PreviousRequestTile: React.FC<{ request: PreviousRequest }> = ({
           <OutlinedButton
             btnColor="green"
             onClick={() => {
-              setRequestDataString(request.input);
-              setReplyString(request.output);
-              $requestSubject.update(request.subject);
+              copyRequestInput(request.input);
+              copyRequestOutput(request.output);
+              setRequestSubject(request.subject);
             }}
           >
             Copy
@@ -124,7 +131,7 @@ const PreviousRequestTile: React.FC<{ request: PreviousRequest }> = ({
 };
 
 const PreviousRequests: React.FC = () => {
-  const requests = useStore($previousRequests.value);
+  const requests = useStore($previousRequests);
 
   const tiles = requests.map((request) => (
     <PreviousRequestTile key={request.id} request={request} />

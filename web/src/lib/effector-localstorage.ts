@@ -1,55 +1,50 @@
-import {
-  createEffect,
-  createEvent,
-  createStore,
-  forward,
-  Store,
-} from "effector";
+import { createEffect, Store } from "effector";
 
-type PersistentStoreConfig<State> = {
-  key: string;
-  initialState: State;
+export type PersistCodec<State> = {
   marshal: (state: State) => string;
   unmarshal: (rawState: string) => State;
 };
 
-export function createPersistentStore<State>(
-  config: PersistentStoreConfig<State>
+export function persist<State>(
+  key: string,
+  store: Store<State>,
+  config: PersistCodec<State>,
 ) {
-  const update = createEvent<State>();
-  const updateFx = createEffect<State, void>((newState) => {
-    localStorage.setItem(config.key, config.marshal(newState));
+  const updateFx = createEffect<State, void>((newState) =>
+    localStorage.setItem(key, config.marshal(newState)),
+  );
+
+  const restoreFx = createEffect<void, State | null>(() => {
+    const storedItem = localStorage.getItem(key);
+
+    return storedItem ? config.unmarshal(storedItem) : null;
   });
 
-  const reset = createEvent();
-  const resetFx = createEffect<void, void>(() => {
-    localStorage.removeItem(config.key);
+  store.on(restoreFx.doneData, (state, data) => (data !== null ? data : state));
+
+  restoreFx();
+
+  store.updates.watch(updateFx);
+}
+
+export function persistText(key: string, store: Store<string>) {
+  persist(key, store, {
+    marshal(state) {
+      return state;
+    },
+    unmarshal(rawState) {
+      return rawState;
+    },
   });
+}
 
-  let store: Store<State>;
-
-  const currentValue = localStorage.getItem(config.key);
-  if (currentValue) {
-    store = createStore(config.unmarshal(currentValue));
-  } else {
-    store = createStore(config.initialState);
-  }
-
-  store.on(updateFx, (_, newState) => newState).reset(resetFx);
-
-  forward({
-    from: update,
-    to: updateFx,
+export function persistJSON<State>(key: string, store: Store<State>) {
+  persist(key, store, {
+    marshal(state) {
+      return JSON.stringify(state);
+    },
+    unmarshal(rawState) {
+      return JSON.parse(rawState);
+    },
   });
-
-  forward({
-    from: reset,
-    to: resetFx,
-  });
-
-  return {
-    value: store,
-    update,
-    reset,
-  };
 }

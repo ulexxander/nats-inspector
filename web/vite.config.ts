@@ -5,7 +5,10 @@ export default defineConfig({
   plugins: [reactRefresh()],
   server: {
     proxy: {
-      "/api": "http://localhost:4099",
+      "/api": "http://localhost:4000",
     },
+  },
+  define: {
+    DEV_WEBSOCKET_URL: `"ws://localhost:4000"`,
   },
 });

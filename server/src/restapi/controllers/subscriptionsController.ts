@@ -13,7 +13,7 @@ const subscriptionDataValidator = validator(
 );
 
 export class SubscriptionsController implements Controller {
-  path = "/subscribtions";
+  path = "/subscriptions";
 
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
