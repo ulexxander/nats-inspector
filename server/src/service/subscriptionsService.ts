@@ -1,30 +1,29 @@
 import { nanoid } from "nanoid";
 import { Subscription } from "nats";
 import type {
+  ActiveSubscription as ActiveSubscriptionBase,
   DeleteSubscriptionVars,
+  IdInput,
   InsertSubscriptionVars,
+  PausedSubscription,
   SubscriptionModel,
 } from "../../../shared/types";
 import { DatabaseQueries } from "../database/queries";
 import { errText } from "../utils/errors";
-import { mapTransform } from "../utils/maps";
+import { mapTransform, mapValues } from "../utils/maps";
+import { isoTimestamp } from "../utils/time";
 import { WebsocketBroadcaster } from "../websocket/broadcaster";
 import { ConnectionsService } from "./connectionsService";
 import { NatsService } from "./natsService";
 
-export type PausedSubscription = {
-  model: SubscriptionModel;
-};
-
-export type ActiveSubscription = {
-  model: SubscriptionModel;
+export type ActiveSubscription = ActiveSubscriptionBase & {
   nats: Subscription;
 };
 
 export class SubscriptionsService {
-  subjects: Set<string> = new Set();
-  activeSubs: Map<number, ActiveSubscription> = new Map();
-  pausedSubs: Map<number, SubscriptionModel> = new Map();
+  private subjects: Set<string> = new Set();
+  private activeSubs: Map<number, ActiveSubscription> = new Map();
+  private pausedSubs: Map<number, PausedSubscription> = new Map();
 
   constructor(
     private readonly connectionsService: ConnectionsService,
@@ -33,14 +32,12 @@ export class SubscriptionsService {
     private readonly db: DatabaseQueries,
   ) {}
 
-  addSubscription(model: SubscriptionModel) {
+  private makeSubscription(model: SubscriptionModel): Subscription {
     const conn = this.connectionsService.mustGetNatsConnection(
       model.connectionId,
     );
 
-    this.subjects.add(model.subject);
-
-    const natsSub = this.natsService.subscription(
+    return this.natsService.subscription(
       conn,
       model,
       ({ error, data, msg }) => {
@@ -48,9 +45,9 @@ export class SubscriptionsService {
           this.websocket.send({
             t: "SUBSCRIPTION_ERR",
             p: {
-              id: nanoid(),
-              subject: msg.subject,
+              subscriptionId: model.id,
               error: errText(error),
+              timestamp: isoTimestamp(),
             },
           });
           return;
@@ -59,17 +56,30 @@ export class SubscriptionsService {
         this.websocket.send({
           t: "SUBSCRIPTION_MSG",
           p: {
-            id: nanoid(),
-            subject: msg.subject,
+            messageId: nanoid(),
+            subscriptionId: model.id,
+            subjectFull: msg.subject,
             data,
+            timestamp: isoTimestamp(),
           },
         });
       },
     );
+  }
 
+  addActiveSubscription(model: SubscriptionModel) {
+    const natsSub = this.makeSubscription(model);
+    this.subjects.add(model.subject);
     this.activeSubs.set(model.id, {
       model,
       nats: natsSub,
+    });
+  }
+
+  addPausedSubscription(model: SubscriptionModel) {
+    this.subjects.add(model.subject);
+    this.pausedSubs.set(model.id, {
+      model,
     });
   }
 
@@ -79,9 +89,35 @@ export class SubscriptionsService {
     }
 
     const insertedSubscription = this.db.insertSubscription(input);
-    this.addSubscription(insertedSubscription);
+    this.addActiveSubscription(insertedSubscription);
 
     return insertedSubscription;
+  }
+
+  pauseSubscription({ id }: IdInput): SubscriptionModel {
+    const activeSub = this.activeSubs.get(id);
+    if (!activeSub) {
+      throw new Error(`No active subscription with id ${id}`);
+    }
+    const { model } = activeSub;
+    activeSub.nats.unsubscribe();
+
+    this.activeSubs.delete(id);
+    this.pausedSubs.set(id, { model });
+    return model;
+  }
+
+  resumeSubscription({ id }: IdInput): SubscriptionModel {
+    const pausedSub = this.pausedSubs.get(id);
+    if (!pausedSub) {
+      throw new Error(`No paused subscription with id ${id}`);
+    }
+    const { model } = pausedSub;
+    const natsSub = this.makeSubscription(model);
+
+    this.pausedSubs.delete(id);
+    this.activeSubs.set(id, { model, nats: natsSub });
+    return model;
   }
 
   deleteSubscription(input: DeleteSubscriptionVars): SubscriptionModel {
@@ -94,7 +130,7 @@ export class SubscriptionsService {
     } else if (this.pausedSubs.has(id)) {
       this.pausedSubs.delete(id);
     } else {
-      throw new Error(`No subscribtion with id ${id}`);
+      throw new Error(`No subscription with id ${id}`);
     }
 
     const deletedSub = this.db.deleteSubscription(input);
@@ -103,11 +139,11 @@ export class SubscriptionsService {
     return deletedSub;
   }
 
-  getActiveList(): SubscriptionModel[] {
-    return mapTransform(this.activeSubs, (_subject, { model }) => model);
+  getActiveList(): ActiveSubscriptionBase[] {
+    return mapTransform(this.activeSubs, (_subject, { model }) => ({ model }));
   }
 
-  getPausedList(): SubscriptionModel[] {
-    return mapTransform(this.pausedSubs, (_subject, sub) => sub);
+  getPausedList(): PausedSubscription[] {
+    return mapValues(this.pausedSubs);
   }
 }

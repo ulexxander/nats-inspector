@@ -33,13 +33,11 @@ export class ConnectionsController implements Controller {
 
     routes.post("/create", async (req, res) => {
       const input = validateCreateConnectionInput(req.body);
-
       result(res, await this.connectionsService.createConnection(input));
     });
 
     routes.delete("/delete", async (req, res) => {
       const input = validateIdInput(req.body);
-
       result(res, await this.connectionsService.deleteConnection(input));
     });
   }

@@ -3,6 +3,7 @@ import type {
   InsertSubscriptionVars,
 } from "../../../../shared/types";
 import { validator } from "../../modules/validation";
+import { validateIdInput } from "../../modules/validationPresets";
 import { SubscriptionsService } from "../../service/subscriptionsService";
 import { Controller } from "../endpoints";
 import { result } from "../responses";
@@ -41,15 +42,21 @@ export class SubscriptionsController implements Controller {
 
     routes.post("/create", (req, res) => {
       const input = validateCreateSubscriptionInput(req.body);
+      result(res, this.subscriptionsService.createSubscription(input));
+    });
 
-      const subscription = this.subscriptionsService.createSubscription(input);
+    routes.put("/pause", (req, res) => {
+      const input = validateIdInput(req.body);
+      result(res, this.subscriptionsService.pauseSubscription(input));
+    });
 
-      result(res, subscription);
+    routes.put("/resume", (req, res) => {
+      const input = validateIdInput(req.body);
+      result(res, this.subscriptionsService.resumeSubscription(input));
     });
 
     routes.delete("/delete", (req, res) => {
       const input = validateDeleteSubscriptionInput(req.body);
-
       result(res, this.subscriptionsService.deleteSubscription(input));
     });
   }

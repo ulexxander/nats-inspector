@@ -23,10 +23,7 @@ export class RequestsController implements Controller {
   register(routes: Routes): void {
     routes.post("/send", async (req, res) => {
       const input = validateSendRequestInput(req.body);
-
-      const response = await this.requestsService.sendRequest(input);
-
-      result(res, response);
+      result(res, await this.requestsService.sendRequest(input));
     });
   }
 }

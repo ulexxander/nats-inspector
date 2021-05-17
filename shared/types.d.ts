@@ -35,19 +35,34 @@ export type DeleteSubscriptionVars = Pick<SubscriptionModel, "id">;
 
 // service typedefs
 
-export type PausedConnection = {
-  model: ConnectionModel;
-  error?: {
-    message: string;
-    timestamp: string;
-  };
+export type ErrorWithTimestamp = {
+  message: string;
+  timestamp: string;
 };
 
 export type ActiveConnection = {
   model: ConnectionModel;
 };
 
+export type PausedConnection = {
+  model: ConnectionModel;
+  error?: ErrorWithTimestamp;
+};
+
+export type ActiveSubscription = {
+  model: SubscriptionModel;
+};
+
+export type PausedSubscription = {
+  model: SubscriptionModel;
+  error?: ErrorWithTimestamp;
+};
+
 // restapi inputs
+
+export type IdInput = {
+  id: number;
+};
 
 export type SendRequestInput = {
   connectionId: number;
@@ -63,9 +78,6 @@ export type SendRequestOutput = {
   dateCreated: string;
 };
 
-export type ActiveConnectionsOutput = Pick<ActiveConnection, "model">[];
-export type PausedConnectionsOutput = PausedConnection[];
-
 // websocket
 
 export type WsEventDef<Type, Payload> = { t: Type; p: Payload };
@@ -73,18 +85,20 @@ export type WsEventDef<Type, Payload> = { t: Type; p: Payload };
 export type WsSubscriptionMsgEvent = WsEventDef<
   "SUBSCRIPTION_MSG",
   {
-    id: string;
-    subject: string;
+    messageId: string;
+    subscriptionId: number;
+    subjectFull: string;
     data: unknown;
+    timestamp: string;
   }
 >;
 
 export type WsSubscriptionErrEvent = WsEventDef<
   "SUBSCRIPTION_ERR",
   {
-    id: string;
-    subject: string;
+    subscriptionId: number;
     error: string;
+    timestamp: string;
   }
 >;
 

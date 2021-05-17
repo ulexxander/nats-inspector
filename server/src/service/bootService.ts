@@ -20,7 +20,7 @@ export class BootService {
 
     for (const conn of conns) {
       l({
-        msg: "Recreating nats connection",
+        msg: "Recreating and initializing nats connection",
         id: conn.id,
         server: address(conn),
       });
@@ -40,12 +40,12 @@ export class BootService {
     for (const sub of subs) {
       const { id, connectionId, subject } = sub;
       l({
-        msg: "Recreating nats subscribtion",
+        msg: "Recreating previous nats subscription as paused",
         id,
         connectionId,
         subject,
       });
-      subscriptionsService.addSubscription(sub);
+      subscriptionsService.addPausedSubscription(sub);
     }
   }
 }

@@ -1,12 +1,10 @@
 import { connect as natsConnect, NatsConnection } from "nats";
 import type {
   ActiveConnection as ActiveConnectionBase,
-  ActiveConnectionsOutput,
   ConnectionModel,
   DeleteConnectionVars,
   InsertConnectionVars,
   PausedConnection,
-  PausedConnectionsOutput,
 } from "../../../shared/types";
 import { DatabaseQueries } from "../database/queries";
 import { l } from "../modules/logs";
@@ -19,7 +17,6 @@ export type ActiveConnection = ActiveConnectionBase & {
 };
 
 export class ConnectionsService {
-  // key - connectionId
   private activeConnections: Map<number, ActiveConnection> = new Map();
   private pausedConnections: Map<number, PausedConnection> = new Map();
 
@@ -80,7 +77,7 @@ export class ConnectionsService {
     return deletedConn;
   }
 
-  mustGetNatsConnection(connectionId: number) {
+  mustGetNatsConnection(connectionId: number): NatsConnection {
     const conn = this.activeConnections.get(connectionId);
     if (!conn) {
       throw new Error(
@@ -90,13 +87,13 @@ export class ConnectionsService {
     return conn.nats;
   }
 
-  getActiveList(): ActiveConnectionsOutput {
+  getActiveList(): ActiveConnectionBase[] {
     return mapTransform(this.activeConnections, (_id, { model }) => ({
       model,
     }));
   }
 
-  getPausedList(): PausedConnectionsOutput {
+  getPausedList(): PausedConnection[] {
     return mapValues(this.pausedConnections);
   }
 }

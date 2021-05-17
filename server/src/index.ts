@@ -73,7 +73,7 @@ async function main() {
   });
   await bootService.restoreConnections(connectionsService);
   l({
-    msg: "Restoring subscribtions",
+    msg: "Restoring subscriptions",
   });
   await bootService.restoreSubscriptions(subscriptionsService);
 
