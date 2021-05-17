@@ -1,4 +1,4 @@
-type LogPayload = Record<string, any> & {
+export type LogPayload = Record<string, any> & {
   msg: string;
 };
 

@@ -1,42 +1,64 @@
 import { nanoid } from "nanoid";
 import { Subscription } from "nats";
-import { NatsSub } from "../../../shared/types";
-import { NatsClient } from "../nats/natsClient";
-import { mmap } from "../utils";
+import type {
+  DeleteSubscriptionVars,
+  InsertSubscriptionVars,
+  SubscriptionModel,
+} from "../../../shared/types";
+import { DatabaseQueries } from "../database/queries";
+import { errText } from "../utils/errors";
+import { mapTransform } from "../utils/maps";
 import { WebsocketBroadcaster } from "../websocket/broadcaster";
+import { ConnectionsService } from "./connectionsService";
+import { NatsService } from "./natsService";
 
-type NatsSubData = {
-  subscription: Subscription;
-  dateCreated: string;
+export type PausedSubscription = {
+  model: SubscriptionModel;
+};
+
+export type ActiveSubscription = {
+  model: SubscriptionModel;
+  nats: Subscription;
 };
 
 export class SubscriptionsService {
-  private currentSubs: Map<string, NatsSubData> = new Map();
+  subjects: Set<string> = new Set();
+  activeSubs: Map<number, ActiveSubscription> = new Map();
+  pausedSubs: Map<number, SubscriptionModel> = new Map();
 
   constructor(
-    private readonly natsClient: NatsClient,
+    private readonly connectionsService: ConnectionsService,
+    private readonly natsService: NatsService,
     private readonly websocket: WebsocketBroadcaster,
+    private readonly db: DatabaseQueries,
   ) {}
 
-  allSubscriptions(): NatsSub[] {
-    return mmap(this.currentSubs, (subject, { dateCreated }) => ({
-      subject,
-      dateCreated,
-    }));
-  }
+  addSubscription(model: SubscriptionModel) {
+    const conn = this.connectionsService.mustGetNatsConnection(
+      model.connectionId,
+    );
 
-  createSubscription(server: string, subject: string): NatsSub {
-    if (this.currentSubs.has(subject)) {
-      throw new Error(`Already have '${subject}' subscribed`);
-    }
+    this.subjects.add(model.subject);
 
-    const subscription = this.natsClient.subscription(
-      server,
-      subject,
-      ({ data, msg }) => {
+    const natsSub = this.natsService.subscription(
+      conn,
+      model,
+      ({ error, data, msg }) => {
+        if (error) {
+          this.websocket.send({
+            t: "SUBSCRIPTION_ERR",
+            p: {
+              id: nanoid(),
+              subject: msg.subject,
+              error: errText(error),
+            },
+          });
+          return;
+        }
+
         this.websocket.send({
-          type: "SUB_MESSAGE",
-          payload: {
+          t: "SUBSCRIPTION_MSG",
+          p: {
             id: nanoid(),
             subject: msg.subject,
             data,
@@ -45,27 +67,47 @@ export class SubscriptionsService {
       },
     );
 
-    const newSub: NatsSubData = {
-      subscription,
-      dateCreated: new Date().toISOString(),
-    };
-
-    this.currentSubs.set(subject, newSub);
-
-    return { subject, dateCreated: newSub.dateCreated };
+    this.activeSubs.set(model.id, {
+      model,
+      nats: natsSub,
+    });
   }
 
-  deleteSubscription(subject: string): NatsSub {
-    const sub = this.currentSubs.get(subject);
-
-    if (!sub) {
-      throw new Error(`No subscription for subject ${subject}`);
+  createSubscription(input: InsertSubscriptionVars): SubscriptionModel {
+    if (this.subjects.has(input.subject)) {
+      throw new Error(`Already subscribed on ${input.subject}`);
     }
 
-    sub.subscription.unsubscribe();
+    const insertedSubscription = this.db.insertSubscription(input);
+    this.addSubscription(insertedSubscription);
 
-    this.currentSubs.delete(subject);
+    return insertedSubscription;
+  }
 
-    return { subject, dateCreated: sub.dateCreated };
+  deleteSubscription(input: DeleteSubscriptionVars): SubscriptionModel {
+    const { id } = input;
+    const activeSub = this.activeSubs.get(id);
+
+    if (activeSub) {
+      activeSub.nats.unsubscribe();
+      this.activeSubs.delete(id);
+    } else if (this.pausedSubs.has(id)) {
+      this.pausedSubs.delete(id);
+    } else {
+      throw new Error(`No subscribtion with id ${id}`);
+    }
+
+    const deletedSub = this.db.deleteSubscription(input);
+    this.subjects.delete(deletedSub.subject);
+
+    return deletedSub;
+  }
+
+  getActiveList(): SubscriptionModel[] {
+    return mapTransform(this.activeSubs, (_subject, { model }) => model);
+  }
+
+  getPausedList(): SubscriptionModel[] {
+    return mapTransform(this.pausedSubs, (_subject, sub) => sub);
   }
 }

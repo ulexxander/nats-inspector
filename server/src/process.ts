@@ -1,5 +1,5 @@
-import { errtext } from "./errors";
-import { l } from "./logs";
+import { l } from "./modules/logs";
+import { errText } from "./utils/errors";
 
 export function setupProcess() {
   process.on("SIGINT", () => {
@@ -19,15 +19,17 @@ export function setupProcess() {
   process.on("uncaughtException", (err) => {
     l({
       msg: "Unhandled exception",
-      err: errtext(err),
+      err: errText(err),
+      stack: err.stack,
     });
     process.exit(1);
   });
 
-  process.on("unhandledRejection", (err) => {
+  process.on("unhandledRejection", (err: Error) => {
     l({
       msg: "Unhandled rejection",
-      err: errtext(err as Error),
+      err: errText(err),
+      stack: err.stack,
     });
     process.exit(1);
   });

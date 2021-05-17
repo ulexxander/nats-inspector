@@ -1,13 +1,12 @@
 import SQLite from "better-sqlite3";
-import { JSONCodec } from "nats";
+import { StringCodec } from "nats";
 import { createServer } from "node:http";
 import restana from "restana";
 import Websocket from "ws";
 import { env } from "./config/environment";
 import { DatabaseMigrations } from "./database/migrations";
 import { databaseQueries } from "./database/queries";
-import { l } from "./logs";
-import { NatsClient } from "./nats/natsClient";
+import { l } from "./modules/logs";
 import { setupProcess } from "./process";
 import { ConnectionsController } from "./restapi/controllers/connectionsController";
 import { RequestsController } from "./restapi/controllers/requestsController";
@@ -22,7 +21,10 @@ import {
 } from "./restapi/middleware";
 import { BootService } from "./service/bootService";
 import { ConnectionsService } from "./service/connectionsService";
+import { NatsService } from "./service/natsService";
+import { RequestsService } from "./service/requestsService";
 import { SubscriptionsService } from "./service/subscriptionsService";
+import { errText } from "./utils/errors";
 import { WebsocketBroadcaster } from "./websocket/broadcaster";
 
 async function main() {
@@ -32,7 +34,6 @@ async function main() {
     require("dotenv").config();
   }
 
-  const natsClient = new NatsClient(JSONCodec());
   const httpServer = createServer();
 
   l({
@@ -53,18 +54,28 @@ async function main() {
 
   const dbQueries = databaseQueries(sqlite);
 
-  l({
-    msg: "Perfoming boot procedures",
-  });
-  const bootService = new BootService(natsClient, dbQueries);
-  await bootService.restoreConnections();
+  const natsService = new NatsService(StringCodec());
 
-  const connectionsService = new ConnectionsService(natsClient, dbQueries);
-
+  const connectionsService = new ConnectionsService(dbQueries);
   const subscriptionsService = new SubscriptionsService(
-    natsClient,
+    connectionsService,
+    natsService,
     wsBroadcaster,
+    dbQueries,
   );
+
+  const requestsService = new RequestsService(connectionsService, natsService);
+
+  const bootService = new BootService(dbQueries);
+
+  l({
+    msg: "Restoring nats connections",
+  });
+  await bootService.restoreConnections(connectionsService);
+  l({
+    msg: "Restoring subscribtions",
+  });
+  await bootService.restoreSubscriptions(subscriptionsService);
 
   const app = restana({
     server: httpServer,
@@ -79,7 +90,7 @@ async function main() {
 
   applyControllers(app, [
     new ConnectionsController(connectionsService),
-    new RequestsController(natsClient),
+    new RequestsController(requestsService),
     new SubscriptionsController(subscriptionsService),
   ]);
 
@@ -94,6 +105,10 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.log(err);
+  l({
+    msg: "Exception in main func",
+    err: errText(err),
+    stack: err.stack,
+  });
   process.exit(1);
 });

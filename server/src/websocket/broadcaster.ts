@@ -1,6 +1,6 @@
 import WebSocket from "ws";
-import { WsEvent } from "../../../shared/types";
-import { l } from "../logs";
+import type { WsEvent } from "../../../shared/types";
+import { l } from "../modules/logs";
 
 export class WebsocketBroadcaster {
   constructor(private readonly ws: WebSocket.Server) {
@@ -8,17 +8,10 @@ export class WebsocketBroadcaster {
   }
 
   private setupCallbacks() {
-    this.ws.on("connection", (socket) => {
+    this.ws.on("connection", () => {
       l({
         msg: "Client estabilished websocket connection",
       });
-
-      socket.send(
-        JSON.stringify({
-          msg: "connected",
-          time: new Date().toISOString(),
-        }),
-      );
     });
   }
 

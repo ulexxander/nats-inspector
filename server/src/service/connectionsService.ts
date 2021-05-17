@@ -1,32 +1,102 @@
-import { ConnectionModel } from "../database/models";
-import { DatabaseQueries } from "../database/queries";
-import { NatsClient } from "../nats/natsClient";
-
-export type CreateConnectionInput = Pick<
+import { connect as natsConnect, NatsConnection } from "nats";
+import type {
+  ActiveConnection as ActiveConnectionBase,
+  ActiveConnectionsOutput,
   ConnectionModel,
-  "title" | "description" | "host" | "port"
->;
+  DeleteConnectionVars,
+  InsertConnectionVars,
+  PausedConnection,
+  PausedConnectionsOutput,
+} from "../../../shared/types";
+import { DatabaseQueries } from "../database/queries";
+import { l } from "../modules/logs";
+import { errText } from "../utils/errors";
+import { mapTransform, mapValues } from "../utils/maps";
+import { address } from "../utils/texts";
+
+export type ActiveConnection = ActiveConnectionBase & {
+  nats: NatsConnection;
+};
 
 export class ConnectionsService {
-  constructor(
-    private readonly natsClient: NatsClient,
-    private readonly db: DatabaseQueries,
-  ) {}
+  // key - connectionId
+  private activeConnections: Map<number, ActiveConnection> = new Map();
+  private pausedConnections: Map<number, PausedConnection> = new Map();
 
-  async createConnection(input: CreateConnectionInput) {
-    await this.natsClient.addConnection(input.host + ":" + input.port);
+  constructor(private readonly db: DatabaseQueries) {}
 
-    const createdConn = this.db.insertConnection({
-      title: input.title,
-      description: input.description,
-      host: input.host,
-      port: input.port,
-    });
+  async addConnection(model: ConnectionModel): Promise<void> {
+    const { id } = model;
+    if (this.activeConnections.has(id) || this.pausedConnections.has(id)) {
+      throw new Error(`Already have nats connection with id ${id}`);
+    }
 
-    return createdConn;
+    let conn: NatsConnection;
+    try {
+      conn = await natsConnect({
+        servers: address(model),
+      });
+    } catch (err) {
+      this.pausedConnections.set(id, {
+        model,
+        error: { message: errText(err), timestamp: new Date().toISOString() },
+      });
+      return;
+    }
+
+    this.activeConnections.set(id, { model, nats: conn });
   }
 
-  getConnections() {
-    return this.db.selectAllConnections();
+  async createConnection(
+    input: InsertConnectionVars,
+  ): Promise<ConnectionModel> {
+    const insertedConn = this.db.insertConnection(input);
+    l({
+      msg: "Creating nats connection",
+      server: address(insertedConn),
+    });
+
+    await this.addConnection(insertedConn);
+
+    return insertedConn;
+  }
+
+  async deleteConnection(
+    input: DeleteConnectionVars,
+  ): Promise<ConnectionModel> {
+    const { id } = input;
+    const activeConn = this.activeConnections.get(id);
+
+    if (activeConn) {
+      activeConn.nats.close();
+      this.activeConnections.delete(id);
+    } else if (this.pausedConnections.has(id)) {
+      this.pausedConnections.delete(id);
+    } else {
+      throw new Error(`No connection with id ${id}`);
+    }
+
+    const deletedConn = this.db.deleteConnection(input);
+    return deletedConn;
+  }
+
+  mustGetNatsConnection(connectionId: number) {
+    const conn = this.activeConnections.get(connectionId);
+    if (!conn) {
+      throw new Error(
+        `No nats connection estabilished with id ${connectionId}`,
+      );
+    }
+    return conn.nats;
+  }
+
+  getActiveList(): ActiveConnectionsOutput {
+    return mapTransform(this.activeConnections, (_id, { model }) => ({
+      model,
+    }));
+  }
+
+  getPausedList(): PausedConnectionsOutput {
+    return mapValues(this.pausedConnections);
   }
 }

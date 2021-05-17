@@ -1,32 +1,51 @@
 import { DatabaseQueries } from "../database/queries";
-import { l } from "../logs";
-import { NatsClient } from "../nats/natsClient";
-import { batch } from "../utils";
+import { l } from "../modules/logs";
+import { batch } from "../utils/sync";
+import { address } from "../utils/texts";
+import { ConnectionsService } from "./connectionsService";
+import { SubscriptionsService } from "./subscriptionsService";
 
 export class BootService {
-  constructor(
-    private readonly natsClient: NatsClient,
-    private readonly db: DatabaseQueries,
-  ) {}
+  constructor(private readonly db: DatabaseQueries) {}
 
-  async restoreConnections() {
+  async restoreConnections(
+    connectionsService: ConnectionsService,
+  ): Promise<void> {
     const conns = this.db.selectAllConnections();
-
     if (!conns.length) {
       return;
     }
 
-    l({
-      msg: "Restoring nats connections from database and initializing them",
-      conns: conns.length,
-    });
-
     const jobs = batch();
 
     for (const conn of conns) {
-      jobs.add(this.natsClient.addConnection(conn.host + ":" + conn.port));
+      l({
+        msg: "Recreating nats connection",
+        id: conn.id,
+        server: address(conn),
+      });
+
+      jobs.add(connectionsService.addConnection(conn));
     }
 
     await jobs.wait();
+  }
+
+  async restoreSubscriptions(subscriptionsService: SubscriptionsService) {
+    const subs = this.db.selectAllSubscriptions();
+    if (!subs.length) {
+      return;
+    }
+
+    for (const sub of subs) {
+      const { id, connectionId, subject } = sub;
+      l({
+        msg: "Recreating nats subscribtion",
+        id,
+        connectionId,
+        subject,
+      });
+      subscriptionsService.addSubscription(sub);
+    }
   }
 }

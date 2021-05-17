@@ -1,32 +1,30 @@
-import { Type } from "@sinclair/typebox";
-import { NatsClient } from "../../nats/natsClient";
-import { validator } from "../../validation";
+import type { SendRequestInput } from "../../../../shared/types";
+import { validator } from "../../modules/validation";
+import { RequestsService } from "../../service/requestsService";
 import { Controller } from "../endpoints";
 import { result } from "../responses";
 import { Routes } from "../restapiTypedefs";
 
-const sendReqeustInputValidator = validator(
-  Type.Object({
-    server: Type.String({ minLength: 1 }),
-    subject: Type.String({ minLength: 1 }),
-    data: Type.Any(),
-  }),
-);
+const validateSendRequestInput = validator<SendRequestInput>({
+  type: "object",
+  properties: {
+    connectionId: { type: "number" },
+    subject: { type: "string" },
+    payload: { type: "string", nullable: true },
+  },
+  required: ["connectionId", "subject"],
+});
 
 export class RequestsController implements Controller {
   path = "/requests";
 
-  constructor(private natsClient: NatsClient) {}
+  constructor(private readonly requestsService: RequestsService) {}
 
   register(routes: Routes): void {
     routes.post("/send", async (req, res) => {
-      const input = sendReqeustInputValidator(req.body);
+      const input = validateSendRequestInput(req.body);
 
-      const response = await this.natsClient.request(
-        input.server,
-        input.subject,
-        input.data,
-      );
+      const response = await this.requestsService.sendRequest(input);
 
       result(res, response);
     });

@@ -12,6 +12,6 @@ export function internalError(res: Res, message: string) {
   err(res, message, 500);
 }
 
-export function result(res: Res, data: any) {
+export function result(res: Res, data: unknown) {
   res.send({ data });
 }

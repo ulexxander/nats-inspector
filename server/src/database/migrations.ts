@@ -1,8 +1,8 @@
 import { Database } from "better-sqlite3";
 import fs from "fs/promises";
 import path from "path";
-import { errwrap } from "../errors";
-import { l } from "../logs";
+import { l } from "../modules/logs";
+import { errWrap } from "../utils/errors";
 
 export class DatabaseMigrations {
   constructor(private readonly db: Database) {}
@@ -28,7 +28,7 @@ export class DatabaseMigrations {
         .prepare(`INSERT INTO migrations (filename) VALUES (?)`)
         .run(filename);
     } catch (err) {
-      throw errwrap(err, `Can not insert executed migration ${filename}`);
+      throw errWrap(err, `Can not insert executed migration ${filename}`);
     }
   }
 
@@ -36,7 +36,7 @@ export class DatabaseMigrations {
     try {
       this.db.exec(sql);
     } catch (err) {
-      throw errwrap(err, `Can not execute migration ${filename}`);
+      throw errWrap(err, `Can not execute migration ${filename}`);
     }
   }
 
