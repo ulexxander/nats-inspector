@@ -19,13 +19,8 @@ activeSubsQuery.data
   );
 
 forward({
-  from: createSubscriptionForm.submitted as Event<InsertSubscriptionVars>,
+  from: createSubscriptionForm.validated as Event<InsertSubscriptionVars>,
   to: createSubMutation.run,
-});
-
-forward({
-  from: createSubMutation.done,
-  to: createSubscriptionForm.reset,
 });
 
 forward({

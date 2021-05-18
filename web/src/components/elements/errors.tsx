@@ -1,6 +1,7 @@
 import { ExclamationCircleIcon } from "@heroicons/react/outline";
 import React, { ComponentProps } from "react";
 import { cn } from "../../lib/classes";
+import { errText } from "../../lib/errors";
 
 export type ErrorBoxProps = ComponentProps<"div"> & {
   error: Error | string;
@@ -11,7 +12,7 @@ export const ErrorBox: React.FC<ErrorBoxProps> = ({
   className,
   ...props
 }) => {
-  const errText = typeof error === "string" ? error : error.message;
+  const err = errText(error);
 
   return (
     <div
@@ -26,7 +27,7 @@ export const ErrorBox: React.FC<ErrorBoxProps> = ({
       <ExclamationCircleIcon className="w-10 h-10 mr-3" />
 
       <p className="text-lg tracking-wider">
-        Error: <span className="font-light">{errText}</span>
+        Error: <span className="font-light">{err}</span>
       </p>
     </div>
   );

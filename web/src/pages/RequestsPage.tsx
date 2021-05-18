@@ -42,7 +42,7 @@ const RequestSubject: React.FC = () => {
     <Input
       label="Request subject"
       placeholder="Subject"
-      name="subject"
+      name="new-reqeust-subject"
       value={subject}
       onChange={(e) => setRequestSubject(e.target.value)}
     />

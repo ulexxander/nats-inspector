@@ -64,12 +64,12 @@ const CreateSubscription: React.FC = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          createSubscriptionForm.send();
+          createSubscriptionForm.submit();
         }}
       >
         <SubscriptionSubject
           type="text"
-          name="subject"
+          name="new-sub-subject"
           label="Add new subscription"
           placeholder="Subject"
           error={createSubErr}

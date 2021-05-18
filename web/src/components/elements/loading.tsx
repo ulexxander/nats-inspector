@@ -22,10 +22,10 @@ export const TextWithAnimatedDots: React.FC<ComponentProps<"p">> = ({
   );
 };
 
-export const LoadingDots: React.FC = () => {
+export const LoadingDots: React.FC = ({ children }) => {
   return (
     <TextWithAnimatedDots className="mt-2 text-lg font-light">
-      Loading
+      {children || "Loading"}
     </TextWithAnimatedDots>
   );
 };

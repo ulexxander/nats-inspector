@@ -23,13 +23,14 @@ export type FormField<FieldName extends string> = {
 };
 
 export type FormConfig<FieldName extends string> = {
+  reset?: Event<any>;
   fields: Record<FieldName, FormField<FieldName>>;
 };
 
 export type FormState<FieldName extends string> = Record<FieldName, FormValue>;
 export type FormErrorState<FieldName extends string> = Record<
   FieldName,
-  String
+  string
 >;
 export type FormValues<FieldName extends string> = Record<
   FieldName,
@@ -54,9 +55,9 @@ export type Reflectable = React.FC<ReflectableProps>;
 export function createForm<FieldName extends string>(
   config: FormConfig<FieldName>,
 ) {
-  const validate = createEvent<void>();
-  const submitted = createEvent<FormState<FieldName>>();
-  const reset = createEvent();
+  const submit = createEvent<void>();
+  const validated = createEvent<FormState<FieldName>>();
+  const reset = config.reset || createEvent<void>();
 
   const values = {} as FormValues<FieldName>;
   const updaters = {} as FormUpdaters<FieldName>;
@@ -84,7 +85,7 @@ export function createForm<FieldName extends string>(
     errorStores.push($error);
 
     sample({
-      clock: validate,
+      clock: submit,
       source: $value,
       fn(val) {
         return field.validator
@@ -96,23 +97,24 @@ export function createForm<FieldName extends string>(
   }
 
   const $state = combine(values, (v) => v as FormState<FieldName>);
+  const $errors = combine(errors, (v) => v as FormErrorState<FieldName>);
 
-  const $noErrors = combine(errors, (errs) =>
+  const $noErrors = $errors.map((errs) =>
     Object.keys(errs).every((key) => errs[key as FieldName] === ""),
   );
 
   guard({
-    clock: validate,
+    clock: submit,
     source: $state,
     filter: $noErrors,
-    target: submitted,
+    target: validated,
   });
 
   return {
-    values,
-    updaters,
-    send: validate,
-    submitted,
+    state: $state,
+    errors: $errors,
+    submit,
+    validated,
     reset,
     reflect<P>(
       field: FieldName,
@@ -127,4 +129,10 @@ export function createForm<FieldName extends string>(
         });
     },
   };
+}
+
+export function notEmpty<FieldName>(
+  errMessage: string,
+): FieldValidator<FieldName> {
+  return (val) => (val ? "" : errMessage);
 }
