@@ -75,7 +75,7 @@ const CreateSubscription: React.FC = () => {
           error={createSubErr}
         />
 
-        <OutlinedButton type="submit" btnColor="blue">
+        <OutlinedButton type="submit" btnColor="blue" className="mt-4">
           Subscribe
         </OutlinedButton>
       </form>
@@ -87,7 +87,7 @@ export const SubscriptionsPage: React.FC = () => {
   return (
     <Page>
       <Surface>
-        <h2>Subscriptions</h2>
+        <h3>Subscriptions</h3>
         <SubscriptionsList />
 
         <CreateSubscription />

@@ -5,14 +5,16 @@ import { Surface } from "../components/elements/containers";
 import { Input } from "../components/elements/inputs";
 import { Page } from "../components/elements/layout";
 import { JsonEditor } from "../components/JsonEditor";
+import { $currentConnection } from "../domains/connections/connectionsUnits";
 import {
   $previousRequests,
+  $requestPayload,
+  $requestResult,
   $requestSubject,
   copyRequestPayload,
   copyRequestResult,
+  copyRequestResultFormatted,
   deletePreviousRequest,
-  initialRequestPayload,
-  initialRequestResult,
   PreviousRequest,
   sendRequest,
   sendRequestMutation,
@@ -49,20 +51,30 @@ const RequestSubject: React.FC = () => {
   );
 };
 
+const NewRequestTitle: React.FC = () => {
+  const currentConn = useStore($currentConnection);
+  const text = currentConn ? `Request (${currentConn.model.title})` : `Request`;
+  return <h2>{text}</h2>;
+};
+
 const NewRequest: React.FC = () => {
   return (
     <div className="flex-1">
-      <h2>Request</h2>
+      <NewRequestTitle />
 
       <JsonEditor
-        initial={initialRequestPayload}
+        initial={$requestPayload}
         onChange={setRequestPayload}
         setValue={copyRequestPayload}
       />
 
       <RequestSubject />
 
-      <OutlinedButton btnColor="blue" onClick={() => sendRequest()}>
+      <OutlinedButton
+        btnColor="blue"
+        className="mt-4"
+        onClick={() => sendRequest()}
+      >
         Send
       </OutlinedButton>
     </div>
@@ -75,9 +87,9 @@ const ReceivedResponse: React.FC = () => {
       <h2>Response</h2>
 
       <JsonEditor
-        initial={initialRequestResult}
+        initial={$requestResult}
         onChange={setRequestResult}
-        setValue={copyRequestResult}
+        setValue={copyRequestResultFormatted}
       />
 
       <RequestError />
@@ -97,10 +109,11 @@ const PreviousRequestTile: React.FC<{ request: PreviousRequest }> = ({
         </h4>
         <p className="caption">Created: {request.output.dateCreated}</p>
 
-        <div className="space-x-4">
+        <div className="mt-3 space-x-4">
           <OutlinedButton
             btnColor="green"
             onClick={() => {
+              // TODO: bring json formatting
               copyRequestPayload(request.input.payload);
               copyRequestResult(request.output.result);
               setRequestSubject(request.input.subject);
@@ -123,7 +136,7 @@ const PreviousRequestTile: React.FC<{ request: PreviousRequest }> = ({
           <tr>
             <th>Input</th>
             <td className="w-4" />
-            <td className="font-mono">{request.input}</td>
+            <td className="font-mono">{request.input.payload}</td>
           </tr>
         </tbody>
       </table>

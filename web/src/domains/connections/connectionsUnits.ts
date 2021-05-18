@@ -1,14 +1,17 @@
-import { createStore } from "effector";
+import { createEvent, createStore } from "effector";
 import {
-  ConnectionModel,
+  ActiveConnection,
   InsertConnectionVars,
 } from "../../../../shared/types";
 import { createForm, notEmpty } from "../../lib/effector-forms";
 
-export const $currentConnection = createStore<ConnectionModel | null>(null);
+// TODO: persist conn id, and implement stuff using combine, not setting it directly
+export const $currentConnection = createStore<ActiveConnection | null>(null);
 export const $currentConnectionId = $currentConnection.map((conn) =>
-  conn ? conn.id : -1,
+  conn ? conn.model.id : -1,
 );
+
+export const setCurrentConnection = createEvent<ActiveConnection | null>();
 
 export const createConnectionForm = createForm<keyof InsertConnectionVars>({
   fields: {

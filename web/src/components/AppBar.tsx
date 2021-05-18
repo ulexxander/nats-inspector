@@ -1,4 +1,7 @@
+import { useStore } from "effector-react";
 import React from "react";
+import { activeConnsQuery } from "../domains/connections/connectionsRequests";
+import { setCurrentConnection } from "../domains/connections/connectionsUnits";
 import { cn } from "../lib/classes";
 import { Link, LinkProps, useLocation } from "../lib/effector-router";
 
@@ -39,6 +42,37 @@ const Navbar: React.FC = () => {
   );
 };
 
+const CurrentConnection: React.FC = () => {
+  const activeConns = useStore(activeConnsQuery.data) || [];
+
+  const options = activeConns.map((conn) => (
+    <option key={conn.model.id} value={conn.model.id}>
+      {conn.model.title}
+    </option>
+  ));
+
+  return (
+    <div className="ml-4">
+      <select
+        className="w-48 px-4 py-2 rounded bg-blues-900 form-select"
+        name="current-connection"
+        onChange={(e) => {
+          const newCurrent = activeConns.find(
+            (conn) => conn.model.id === Number(e.target.value),
+          );
+
+          setCurrentConnection(newCurrent || null);
+        }}
+      >
+        <option value="abc" disabled>
+          aac
+        </option>
+        {options}
+      </select>
+    </div>
+  );
+};
+
 export const AppBar: React.FC = () => {
   return (
     <div className="flex items-center p-4 bg-blues-800">
@@ -49,6 +83,8 @@ export const AppBar: React.FC = () => {
       </div>
 
       <Navbar />
+
+      <CurrentConnection />
     </div>
   );
 };

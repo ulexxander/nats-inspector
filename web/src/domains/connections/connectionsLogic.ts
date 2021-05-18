@@ -8,7 +8,18 @@ import {
   pausedConnsQuery,
   resumeConnMutation,
 } from "./connectionsRequests";
-import { createConnectionForm } from "./connectionsUnits";
+import {
+  $currentConnection,
+  createConnectionForm,
+  setCurrentConnection,
+} from "./connectionsUnits";
+
+$currentConnection
+  .on(setCurrentConnection, (_, newCurrent) => newCurrent)
+  .on(
+    activeConnsQuery.doneData,
+    (current, activeConns) => current || activeConns[0] || null,
+  );
 
 forward({
   from: createConnectionForm.validated.map((state) => ({

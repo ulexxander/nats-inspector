@@ -31,6 +31,9 @@ export const setRequestResult = createEvent<string>();
 
 export const copyRequestPayload = createEvent<string | undefined>();
 export const copyRequestResult = createEvent<string>();
+export const copyRequestResultFormatted = copyRequestResult.map((result) =>
+  JSON.stringify(JSON.parse(result), null, 2),
+);
 
 export const deletePreviousRequest = createEvent<string>();
 
