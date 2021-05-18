@@ -1,5 +1,6 @@
 import { DatabaseQueries } from "../database/queries";
 import { l } from "../modules/logs";
+import { errTextWrap } from "../utils/errors";
 import { batch } from "../utils/sync";
 import { address } from "../utils/texts";
 import { ConnectionsService } from "./connectionsService";
@@ -25,7 +26,13 @@ export class BootService {
         server: address(conn),
       });
 
-      jobs.add(connectionsService.addConnection(conn));
+      jobs.add(
+        connectionsService.addConnection(conn).catch((err) => {
+          l({
+            msg: errTextWrap(err, "Failed to restore nats connection on boot"),
+          });
+        }),
+      );
     }
 
     await jobs.wait();

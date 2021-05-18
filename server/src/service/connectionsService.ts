@@ -3,12 +3,13 @@ import type {
   ActiveConnection as ActiveConnectionBase,
   ConnectionModel,
   DeleteConnectionVars,
+  IdInput,
   InsertConnectionVars,
   PausedConnection,
 } from "../../../shared/types";
 import { DatabaseQueries } from "../database/queries";
 import { l } from "../modules/logs";
-import { errText } from "../utils/errors";
+import { errText, errWrap } from "../utils/errors";
 import { mapTransform, mapValues } from "../utils/maps";
 import { address } from "../utils/texts";
 
@@ -36,9 +37,12 @@ export class ConnectionsService {
     } catch (err) {
       this.pausedConnections.set(id, {
         model,
-        error: { message: errText(err), timestamp: new Date().toISOString() },
+        error: {
+          message: errText(err),
+          timestamp: new Date().toISOString(),
+        },
       });
-      return;
+      throw errWrap(err, `Cannot connect to nats server ${address(model)}`);
     }
 
     this.activeConnections.set(id, { model, nats: conn });
@@ -74,7 +78,51 @@ export class ConnectionsService {
     }
 
     const deletedConn = this.db.deleteConnection(input);
+    l({
+      msg: "Deleted nats connection",
+      server: address(deletedConn),
+    });
     return deletedConn;
+  }
+
+  pauseConnection(input: IdInput): ConnectionModel {
+    const { id } = input;
+
+    const activeConn = this.activeConnections.get(id);
+    if (!activeConn) {
+      throw new Error(`No active connection with id ${id}`);
+    }
+    const { model } = activeConn;
+
+    this.activeConnections.delete(id);
+    this.pausedConnections.set(id, { model });
+
+    l({
+      msg: "Paused nats connection",
+      server: address(model),
+    });
+
+    return model;
+  }
+
+  async resumeConnection(input: IdInput): Promise<ConnectionModel> {
+    const { id } = input;
+
+    const pausedConn = this.pausedConnections.get(id);
+    if (!pausedConn) {
+      throw new Error(`No paused connection with id ${id}`);
+    }
+    const { model } = pausedConn;
+
+    this.pausedConnections.delete(id);
+    await this.addConnection(model);
+
+    l({
+      msg: "Resumed nats connection",
+      server: address(model),
+    });
+
+    return model;
   }
 
   mustGetNatsConnection(connectionId: number): NatsConnection {

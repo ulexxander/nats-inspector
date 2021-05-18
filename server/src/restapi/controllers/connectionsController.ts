@@ -36,6 +36,16 @@ export class ConnectionsController implements Controller {
       result(res, await this.connectionsService.createConnection(input));
     });
 
+    routes.put("/pause", (req, res) => {
+      const input = validateIdInput(req.body);
+      result(res, this.connectionsService.pauseConnection(input));
+    });
+
+    routes.put("/resume", async (req, res) => {
+      const input = validateIdInput(req.body);
+      result(res, await this.connectionsService.resumeConnection(input));
+    });
+
     routes.delete("/delete", async (req, res) => {
       const input = validateIdInput(req.body);
       result(res, await this.connectionsService.deleteConnection(input));
