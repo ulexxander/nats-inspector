@@ -1,10 +1,10 @@
 import React, { HTMLAttributes } from "react";
-import { clazz } from "../../lib/utils";
+import { cn } from "../../lib/classes";
 
 type HeadingProps = HTMLAttributes<HTMLHeadingElement>;
 
 export const H2: React.FC<HeadingProps> = ({ className, ...props }) => {
-  return <h2 className={clazz("text-2xl", className)} {...props} />;
+  return <h2 className={cn("text-2xl", className)} {...props} />;
 };
 
 export const Caption: React.FC = ({ children }) => {

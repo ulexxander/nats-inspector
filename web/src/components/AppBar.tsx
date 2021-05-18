@@ -1,6 +1,6 @@
 import React from "react";
+import { cn } from "../lib/classes";
 import { Link, LinkProps, useLocation } from "../lib/effector-router";
-import { clazz } from "../lib/utils";
 
 type NavbarLinkProps = LinkProps & {
   location: string;
@@ -9,7 +9,7 @@ type NavbarLinkProps = LinkProps & {
 const NavbarLink = (props: NavbarLinkProps) => {
   return (
     <Link
-      className={clazz(
+      className={cn(
         "mx-4 text-2xl border-b-2 border-transparent cursor-pointer pb-1",
         props.location === props.to && "border-red-500",
       )}

@@ -1,5 +1,5 @@
 import React, { ButtonHTMLAttributes } from "react";
-import { clazz } from "../../lib/utils";
+import { cn } from "../../lib/classes";
 
 type BtnColor = "red" | "green" | "blue";
 
@@ -31,14 +31,13 @@ export const OutlinedButton: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={clazz(
-        `px-4 py-2 mt-3 tracking-widest
-        uppercase focus:outline-none rounded border
-        hover:bg-blues-700
-        `,
+      className={cn(
+        "px-4 py-2 mt-3 tracking-widest",
+        "uppercase focus:outline-none rounded border",
+        "hover:bg-blues-700",
         color.border,
         color.text,
-        className
+        className,
       )}
       {...props}
     />

@@ -3,7 +3,7 @@ import { AppBar } from "./components/AppBar";
 import { Page } from "./components/elements/layout";
 import { appInit } from "./domains/appInit/appInitUnits";
 import { loadRoutes, RouterView } from "./lib/effector-router";
-import { ConnectionsPage } from "./pages/ConnectionsPage";
+import { ConnectionsPage } from "./pages/connections/ConnectionsPage";
 import { MessagesPage } from "./pages/MessagesPage";
 import { RequestsPage } from "./pages/RequestsPage";
 import { SubscriptionsPage } from "./pages/SubscriptionsPage";
