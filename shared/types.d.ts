@@ -41,19 +41,23 @@ export type ErrorWithTimestamp = {
 };
 
 export type ActiveConnection = {
+  type: "active";
   model: ConnectionModel;
 };
 
 export type PausedConnection = {
+  type: "paused";
   model: ConnectionModel;
   error?: ErrorWithTimestamp;
 };
 
 export type ActiveSubscription = {
+  type: "active";
   model: SubscriptionModel;
 };
 
 export type PausedSubscription = {
+  type: "paused";
   model: SubscriptionModel;
   error?: ErrorWithTimestamp;
 };

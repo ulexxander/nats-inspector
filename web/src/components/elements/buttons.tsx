@@ -1,7 +1,7 @@
 import React, { ButtonHTMLAttributes } from "react";
 import { cn } from "../../lib/classes";
 
-type BtnColor = "red" | "green" | "blue";
+export type BtnColor = "red" | "green" | "blue";
 
 const mapBtnColorToClass: Record<BtnColor, { border: string; text: string }> = {
   red: {
@@ -18,23 +18,28 @@ const mapBtnColorToClass: Record<BtnColor, { border: string; text: string }> = {
   },
 };
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   btnColor: BtnColor;
+  small?: boolean;
 };
 
 export const OutlinedButton: React.FC<ButtonProps> = ({
   btnColor,
+  small,
   className,
   ...props
 }) => {
   const color = mapBtnColorToClass[btnColor];
 
+  const sizeClasses = small ? "px-3 py-1 text-sm" : "px-4 py-2";
+
   return (
     <button
       className={cn(
-        "px-4 py-2 mt-3 tracking-widest",
+        "tracking-widest",
         "uppercase focus:outline-none rounded border",
         "hover:bg-blues-700",
+        sizeClasses,
         color.border,
         color.text,
         className,

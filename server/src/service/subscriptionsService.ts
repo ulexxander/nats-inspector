@@ -70,17 +70,12 @@ export class SubscriptionsService {
   addActiveSubscription(model: SubscriptionModel) {
     const natsSub = this.makeSubscription(model);
     this.subjects.add(model.subject);
-    this.activeSubs.set(model.id, {
-      model,
-      nats: natsSub,
-    });
+    this.activeSubs.set(model.id, { type: "active", model, nats: natsSub });
   }
 
   addPausedSubscription(model: SubscriptionModel) {
     this.subjects.add(model.subject);
-    this.pausedSubs.set(model.id, {
-      model,
-    });
+    this.pausedSubs.set(model.id, { type: "paused", model });
   }
 
   createSubscription(input: InsertSubscriptionVars): SubscriptionModel {
@@ -103,7 +98,7 @@ export class SubscriptionsService {
     activeSub.nats.unsubscribe();
 
     this.activeSubs.delete(id);
-    this.pausedSubs.set(id, { model });
+    this.pausedSubs.set(id, { type: "paused", model });
     return model;
   }
 
@@ -116,7 +111,7 @@ export class SubscriptionsService {
     const natsSub = this.makeSubscription(model);
 
     this.pausedSubs.delete(id);
-    this.activeSubs.set(id, { model, nats: natsSub });
+    this.activeSubs.set(id, { type: "active", model, nats: natsSub });
     return model;
   }
 
@@ -140,7 +135,10 @@ export class SubscriptionsService {
   }
 
   getActiveList(): ActiveSubscriptionBase[] {
-    return mapTransform(this.activeSubs, (_subject, { model }) => ({ model }));
+    return mapTransform(this.activeSubs, (_subject, { model }) => ({
+      type: "active",
+      model,
+    }));
   }
 
   getPausedList(): PausedSubscription[] {

@@ -23,7 +23,7 @@ export type FormField<FieldName extends string> = {
 };
 
 export type FormConfig<FieldName extends string> = {
-  reset?: Event<any>;
+  reset?: Event<void>;
   fields: Record<FieldName, FormField<FieldName>>;
 };
 

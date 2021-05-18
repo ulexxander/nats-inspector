@@ -1,4 +1,5 @@
 import React, { ComponentProps, useEffect, useState } from "react";
+import { ClassProps, cn } from "../../lib/classes";
 
 export const TextWithAnimatedDots: React.FC<ComponentProps<"p">> = ({
   children,
@@ -22,9 +23,9 @@ export const TextWithAnimatedDots: React.FC<ComponentProps<"p">> = ({
   );
 };
 
-export const LoadingDots: React.FC = ({ children }) => {
+export const LoadingDots: React.FC<ClassProps> = ({ className, children }) => {
   return (
-    <TextWithAnimatedDots className="mt-2 text-lg font-light">
+    <TextWithAnimatedDots className={cn("mt-2 text-lg font-light", className)}>
       {children || "Loading"}
     </TextWithAnimatedDots>
   );

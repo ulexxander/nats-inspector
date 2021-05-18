@@ -17,6 +17,10 @@ export type ActiveConnection = ActiveConnectionBase & {
   nats: NatsConnection;
 };
 
+// TODO: get rid of "type" field in maps
+// add it only when sending to the user
+// make better type hierarchy
+
 export class ConnectionsService {
   private activeConnections: Map<number, ActiveConnection> = new Map();
   private pausedConnections: Map<number, PausedConnection> = new Map();
@@ -36,6 +40,7 @@ export class ConnectionsService {
       });
     } catch (err) {
       this.pausedConnections.set(id, {
+        type: "paused",
         model,
         error: {
           message: errText(err),
@@ -45,7 +50,7 @@ export class ConnectionsService {
       throw errWrap(err, `Cannot connect to nats server ${address(model)}`);
     }
 
-    this.activeConnections.set(id, { model, nats: conn });
+    this.activeConnections.set(id, { type: "active", model, nats: conn });
   }
 
   async createConnection(
@@ -95,7 +100,7 @@ export class ConnectionsService {
     const { model } = activeConn;
 
     this.activeConnections.delete(id);
-    this.pausedConnections.set(id, { model });
+    this.pausedConnections.set(id, { type: "paused", model });
 
     l({
       msg: "Paused nats connection",
@@ -137,6 +142,7 @@ export class ConnectionsService {
 
   getActiveList(): ActiveConnectionBase[] {
     return mapTransform(this.activeConnections, (_id, { model }) => ({
+      type: "active",
       model,
     }));
   }

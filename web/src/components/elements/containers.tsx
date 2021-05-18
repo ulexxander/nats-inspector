@@ -1,7 +1,5 @@
-import React, { ComponentProps } from "react";
-import { cn } from "../../lib/classes";
-
-export type ClassProps = Pick<ComponentProps<"div">, "className">;
+import React from "react";
+import { ClassProps, cn } from "../../lib/classes";
 
 export const Surface: React.FC<ClassProps> = ({ className, children }) => {
   return (
