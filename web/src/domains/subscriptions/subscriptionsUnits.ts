@@ -4,11 +4,10 @@ import { createForm } from "../../lib/effector-forms";
 import { voidEvent } from "../../lib/effector-shortcuts";
 import { createSubMutation } from "./subscriptionsRequests";
 
-export const createSubscriptionForm = createForm<keyof InsertSubscriptionVars>({
+export const createSubscriptionForm = createForm<
+  keyof Omit<InsertSubscriptionVars, "connectionId">
+>({
   fields: {
-    connectionId: {
-      default: null,
-    },
     subject: {
       default: "",
     },

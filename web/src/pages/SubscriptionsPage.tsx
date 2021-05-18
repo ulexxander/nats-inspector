@@ -26,7 +26,11 @@ const SubscriptionsListTile: React.FC<{ sub: ActiveSubscription }> = ({
       </h4>
       <p className="caption">Created: {dateCreated}</p>
 
-      <OutlinedButton btnColor="red" onClick={() => deleteSubscription({ id })}>
+      <OutlinedButton
+        btnColor="red"
+        className="mt-2"
+        onClick={() => deleteSubscription({ id })}
+      >
         Remove
       </OutlinedButton>
     </li>

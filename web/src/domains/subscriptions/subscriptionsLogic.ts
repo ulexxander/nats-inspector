@@ -1,5 +1,6 @@
-import { Event, forward } from "effector";
+import { Event, forward, sample } from "effector";
 import { InsertSubscriptionVars } from "../../../../shared/types";
+import { $currentConnectionId } from "../connections/connectionsUnits";
 import {
   activeSubsQuery,
   createSubMutation,
@@ -12,15 +13,24 @@ import {
 
 activeSubsQuery.data
   .on(createSubMutation.doneData, (subs, newSub) =>
-    subs ? [...subs, { model: newSub }] : null,
+    subs ? [...subs, { type: "active", model: newSub }] : null,
   )
   .on(deleteSubMutation.doneData, (subs, deleted) =>
     subs ? subs.filter(({ model }) => model.subject !== deleted.subject) : null,
   );
 
-forward({
-  from: createSubscriptionForm.validated as Event<InsertSubscriptionVars>,
-  to: createSubMutation.run,
+sample({
+  source: $currentConnectionId,
+  clock: createSubscriptionForm.validated as Event<
+    Omit<InsertSubscriptionVars, "connectionId">
+  >,
+  fn(connId, formState) {
+    return {
+      connectionId: connId,
+      ...formState,
+    };
+  },
+  target: createSubMutation.run,
 });
 
 forward({
