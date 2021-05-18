@@ -1,10 +1,10 @@
 import CodeMirror, { Editor } from "codemirror";
-import { Event, Store } from "effector";
+import { Event } from "effector";
 import React, { useEffect, useRef } from "react";
 
 export type CodeEditorProps = {
-  initial: Store<string>;
-  setValue?: Event<string>;
+  initial: string;
+  setValue?: Event<string> | Event<string | undefined>;
   onChange: Event<string>;
 };
 
@@ -22,7 +22,7 @@ export const JsonEditor: React.FC<CodeEditorProps> = ({
     }
 
     const editor = CodeMirror(containerRef.current, {
-      value: initial.getState(),
+      value: initial,
       tabSize: 2,
       mode: "application/json",
       theme: "material-palenight",
@@ -46,7 +46,7 @@ export const JsonEditor: React.FC<CodeEditorProps> = ({
     }
 
     return setValue.watch((val) => {
-      editor.setValue(val);
+      editor.setValue(val || initial);
     });
   }, [containerRef]);
 

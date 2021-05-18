@@ -6,14 +6,18 @@
   @apply mt-1 text-gray-300;
 }
 
+h1 {
+  @apply text-4xl tracking-wide;
+}
+
 h2 {
-  @apply text-2xl tracking-wide;
+  @apply text-3xl tracking-wide;
 }
 
 h3 {
-  @apply text-xl tracking-wide;
+  @apply text-2xl tracking-wide;
 }
 
 h4 {
-  @apply text-lg tracking-wide;
+  @apply text-xl tracking-wide;
 }

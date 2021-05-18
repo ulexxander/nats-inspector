@@ -1,38 +1,40 @@
-import { createEffect, createEvent, createStore } from "effector";
-import { RequestsApi, SendRequestResponse } from "../../api/requestsApi";
+import { createEvent, createStore } from "effector";
+import { SendRequestInput, SendRequestOutput } from "../../../../shared/types";
+import { createMutation } from "../../api/apiHelpers";
 import { persistJSON, persistText } from "../../lib/effector-localstorage";
 
 export type PreviousRequest = {
-  id: string;
-  subject: string;
-  input: string;
-  output: string;
-  dateCreated: string;
+  input: SendRequestInput;
+  output: SendRequestOutput;
 };
 
-export const $requestResult = createStore<SendRequestResponse | null>(null);
-export const $requestError = createStore("");
+export const initialRequestPayload = "{}";
+export const initialRequestResult = "// nothing yet";
 
 export const $requestSubject = createStore("");
 persistText("request_subject", $requestSubject);
 
-export const $requestInput = createStore("{}");
-persistText("request_input", $requestInput);
+export const $requestPayload = createStore(initialRequestPayload);
+persistText("request_payload", $requestPayload);
 
-export const $requestOutput = createStore("// nothing yet");
-persistText("request_output", $requestOutput);
+export const $requestResult = createStore(initialRequestResult);
+persistText("request_result", $requestResult);
 
 export const $previousRequests = createStore<PreviousRequest[]>([]);
 persistJSON("previous_requests", $previousRequests);
 
 export const sendRequest = createEvent();
-export const sendRequestFx = createEffect(RequestsApi.sendRequest);
 
 export const setRequestSubject = createEvent<string>();
-export const setRequestInput = createEvent<string>();
-export const setRequestOutput = createEvent<string>();
+export const setRequestPayload = createEvent<string>();
+export const setRequestResult = createEvent<string>();
 
-export const copyRequestInput = createEvent<string>();
-export const copyRequestOutput = createEvent<string>();
+export const copyRequestPayload = createEvent<string | undefined>();
+export const copyRequestResult = createEvent<string>();
 
 export const deletePreviousRequest = createEvent<string>();
+
+export const sendRequestMutation = createMutation<
+  SendRequestInput,
+  SendRequestOutput
+>("/requests/send", { method: "POST" });

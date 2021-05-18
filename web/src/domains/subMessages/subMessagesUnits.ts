@@ -1,4 +1,4 @@
 import { createStore } from "effector";
-import { WsSubMessageEvent } from "../../../../shared/types";
+import { WsSubscriptionMsgEvent } from "../../../../shared/types";
 
-export const $subMessages = createStore<WsSubMessageEvent["payload"][]>([]);
+export const $subMessages = createStore<WsSubscriptionMsgEvent["p"][]>([]);

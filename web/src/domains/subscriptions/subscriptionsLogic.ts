@@ -1,36 +1,34 @@
-import { forward } from "effector";
+import { Event, forward } from "effector";
+import { InsertSubscriptionVars } from "../../../../shared/types";
 import {
-  $createSubError,
-  $subscriptions,
-  createSubForm,
-  createSubFx,
-  deleteSub,
-  deleteSubFx,
-  getAllSubsFx,
+  activeSubsQuery,
+  createSubMutation,
+  deleteSubMutation,
+} from "./subscriptionsRequests";
+import {
+  createSubscriptionForm,
+  deleteSubscription,
 } from "./subscriptionsUnits";
 
-$subscriptions
-  .on(getAllSubsFx.doneData, (_, subscriptions) => subscriptions)
-  .on(createSubFx.doneData, (subs, newSub) => (subs ? [...subs, newSub] : null))
-  .on(deleteSubFx.doneData, (subs, deleted) =>
-    subs ? subs.filter(({ subject }) => subject !== deleted.subject) : null,
+activeSubsQuery.data
+  .on(createSubMutation.doneData, (subs, newSub) =>
+    subs ? [...subs, { model: newSub }] : null,
+  )
+  .on(deleteSubMutation.doneData, (subs, deleted) =>
+    subs ? subs.filter(({ model }) => model.subject !== deleted.subject) : null,
   );
 
-$createSubError
-  .on(createSubFx.failData, (_, { message }) => message)
-  .reset(createSubFx);
-
 forward({
-  from: createSubForm.submitted,
-  to: createSubFx,
+  from: createSubscriptionForm.submitted as Event<InsertSubscriptionVars>,
+  to: createSubMutation.run,
 });
 
 forward({
-  from: createSubFx.doneData,
-  to: createSubForm.reset,
+  from: createSubMutation.done,
+  to: createSubscriptionForm.reset,
 });
 
 forward({
-  from: deleteSub,
-  to: deleteSubFx,
+  from: deleteSubscription,
+  to: deleteSubMutation.run,
 });

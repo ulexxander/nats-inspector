@@ -74,7 +74,7 @@ export type SendRequestInput = {
 
 export type SendRequestOutput = {
   id: string;
-  response: string;
+  result: string;
   dateCreated: string;
 };
 

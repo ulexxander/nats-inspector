@@ -7,22 +7,22 @@ import { Page } from "../components/elements/layout";
 import { JsonEditor } from "../components/JsonEditor";
 import {
   $previousRequests,
-  $requestError,
-  $requestInput,
-  $requestOutput,
   $requestSubject,
-  copyRequestInput,
-  copyRequestOutput,
+  copyRequestPayload,
+  copyRequestResult,
   deletePreviousRequest,
+  initialRequestPayload,
+  initialRequestResult,
   PreviousRequest,
   sendRequest,
-  setRequestInput,
-  setRequestOutput,
+  sendRequestMutation,
+  setRequestPayload,
+  setRequestResult,
   setRequestSubject,
 } from "../domains/requests/requestsUnits";
 
 const RequestError: React.FC = () => {
-  const error = useStore($requestError);
+  const error = useStore(sendRequestMutation.error);
 
   if (!error) {
     return null;
@@ -55,9 +55,9 @@ const NewRequest: React.FC = () => {
       <h2>Request</h2>
 
       <JsonEditor
-        initial={$requestInput}
-        onChange={setRequestInput}
-        setValue={copyRequestInput}
+        initial={initialRequestPayload}
+        onChange={setRequestPayload}
+        setValue={copyRequestPayload}
       />
 
       <RequestSubject />
@@ -75,9 +75,9 @@ const ReceivedResponse: React.FC = () => {
       <h2>Response</h2>
 
       <JsonEditor
-        initial={$requestOutput}
-        onChange={setRequestOutput}
-        setValue={copyRequestOutput}
+        initial={initialRequestResult}
+        onChange={setRequestResult}
+        setValue={copyRequestResult}
       />
 
       <RequestError />
@@ -92,17 +92,18 @@ const PreviousRequestTile: React.FC<{ request: PreviousRequest }> = ({
     <li className="flex mt-4 space-x-8">
       <div>
         <h4>
-          Subject: <span className="text-green-500">{request.subject}</span>
+          Subject:{" "}
+          <span className="text-green-500">{request.input.subject}</span>
         </h4>
-        <p className="caption">Created: {request.dateCreated}</p>
+        <p className="caption">Created: {request.output.dateCreated}</p>
 
         <div className="space-x-4">
           <OutlinedButton
             btnColor="green"
             onClick={() => {
-              copyRequestInput(request.input);
-              copyRequestOutput(request.output);
-              setRequestSubject(request.subject);
+              copyRequestPayload(request.input.payload);
+              copyRequestResult(request.output.result);
+              setRequestSubject(request.input.subject);
             }}
           >
             Copy
@@ -110,7 +111,7 @@ const PreviousRequestTile: React.FC<{ request: PreviousRequest }> = ({
 
           <OutlinedButton
             btnColor="red"
-            onClick={() => deletePreviousRequest(request.id)}
+            onClick={() => deletePreviousRequest(request.output.id)}
           >
             Delete
           </OutlinedButton>
@@ -134,7 +135,7 @@ const PreviousRequests: React.FC = () => {
   const requests = useStore($previousRequests);
 
   const tiles = requests.map((request) => (
-    <PreviousRequestTile key={request.id} request={request} />
+    <PreviousRequestTile key={request.output.id} request={request} />
   ));
 
   return (

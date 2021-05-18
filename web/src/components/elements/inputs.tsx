@@ -5,7 +5,7 @@ export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   name: string;
   placeholder: string;
-  error?: string;
+  error?: Error | null;
 };
 
 export const Input: React.FC<InputProps> = ({
@@ -27,7 +27,7 @@ export const Input: React.FC<InputProps> = ({
         className="block w-64 h-12 mt-2 border-gray-700 rounded-md form-input bg-blues-900"
         {...props}
       />
-      <p className="mt-2 text-red-500">{error}</p>
+      {error && <p className="mt-2 text-red-500">{error.message}</p>}
     </div>
   );
 };

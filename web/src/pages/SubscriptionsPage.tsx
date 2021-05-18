@@ -1,29 +1,32 @@
 import { useStore } from "effector-react";
 import React from "react";
-import { NatsSub } from "../../../shared/types";
+import { ActiveSubscription } from "../../../shared/types";
 import { OutlinedButton } from "../components/elements/buttons";
 import { Surface } from "../components/elements/containers";
 import { InputReflected } from "../components/elements/inputs";
 import { Page } from "../components/elements/layout";
 import {
-  $createSubError,
-  $subscriptions,
-  createSubForm,
-  deleteSub,
+  activeSubsQuery,
+  createSubMutation,
+} from "../domains/subscriptions/subscriptionsRequests";
+import {
+  createSubscriptionForm,
+  deleteSubscription,
 } from "../domains/subscriptions/subscriptionsUnits";
 
-const SubscriptionsListTile: React.FC<{ data: NatsSub }> = ({ data }) => {
+const SubscriptionsListTile: React.FC<{ sub: ActiveSubscription }> = ({
+  sub,
+}) => {
+  const { id, subject, dateCreated } = sub.model;
+
   return (
     <li className="mt-4">
       <h4>
-        Subject: <span className="text-green-500">{data.subject}</span>
+        Subject: <span className="text-green-500">{subject}</span>
       </h4>
-      <p className="caption">Created: {data.dateCreated}</p>
+      <p className="caption">Created: {dateCreated}</p>
 
-      <OutlinedButton
-        btnColor="red"
-        onClick={() => deleteSub({ subject: data.subject })}
-      >
+      <OutlinedButton btnColor="red" onClick={() => deleteSubscription({ id })}>
         Remove
       </OutlinedButton>
     </li>
@@ -31,34 +34,37 @@ const SubscriptionsListTile: React.FC<{ data: NatsSub }> = ({ data }) => {
 };
 
 const SubscriptionsList: React.FC = () => {
-  const subs = useStore($subscriptions);
+  const activeSubs = useStore(activeSubsQuery.data);
 
-  if (!subs) {
+  if (!activeSubs) {
     return <p className="caption">Loading...</p>;
   }
 
-  if (!subs.length) {
+  if (!activeSubs.length) {
     return <p className="caption">No subscriptions yet</p>;
   }
 
-  const subsList = subs.map((sub) => (
-    <SubscriptionsListTile key={sub.subject} data={sub} />
+  const subsList = activeSubs.map((sub) => (
+    <SubscriptionsListTile key={sub.model.subject} sub={sub} />
   ));
 
   return <ol className="mt-4 ml-4 list-decimal">{subsList}</ol>;
 };
 
-const SubscriptionSubject = createSubForm.reflect("subject", InputReflected);
+const SubscriptionSubject = createSubscriptionForm.reflect(
+  "subject",
+  InputReflected,
+);
 
 const CreateSubscription: React.FC = () => {
-  const createSubErr = useStore($createSubError);
+  const createSubErr = useStore(createSubMutation.error);
 
   return (
     <div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          createSubForm.send();
+          createSubscriptionForm.send();
         }}
       >
         <SubscriptionSubject

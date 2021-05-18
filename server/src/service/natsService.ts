@@ -37,7 +37,7 @@ export class NatsService {
 
     return {
       id: nanoid(),
-      response: this.codec.decode(response.data),
+      result: this.codec.decode(response.data),
       dateCreated: new Date().toISOString(),
     };
   }

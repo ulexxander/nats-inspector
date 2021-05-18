@@ -1,9 +1,26 @@
 import { forward } from "effector";
-import { getAllSubsFx } from "../subscriptions/subscriptionsUnits";
+import {
+  activeConnsQuery,
+  pausedConnsQuery,
+} from "../connections/connectionsRequests";
+import {
+  activeSubsQuery,
+  pausedSubsQuery,
+} from "../subscriptions/subscriptionsRequests";
 import { websocketConnectFx } from "../websocket/websocketUnits";
-import { appInit } from "./appInitUnits";
+import { appInit, fetchInitialData } from "./appInitUnits";
 
 forward({
   from: appInit,
-  to: [getAllSubsFx, websocketConnectFx],
+  to: [websocketConnectFx, fetchInitialData],
+});
+
+forward({
+  from: fetchInitialData,
+  to: [
+    activeConnsQuery.run,
+    pausedConnsQuery.run,
+    activeSubsQuery.run,
+    pausedSubsQuery.run,
+  ],
 });

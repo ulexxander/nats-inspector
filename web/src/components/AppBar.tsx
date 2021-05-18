@@ -11,7 +11,7 @@ const NavbarLink = (props: NavbarLinkProps) => {
     <Link
       className={clazz(
         "mx-4 text-2xl border-b-2 border-transparent cursor-pointer pb-1",
-        props.location === props.to && "border-red-500"
+        props.location === props.to && "border-red-500",
       )}
       {...props}
     />
@@ -32,6 +32,9 @@ const Navbar: React.FC = () => {
       <NavbarLink location={location} to="/messages">
         Messages
       </NavbarLink>
+      <NavbarLink location={location} to="/connections">
+        Connections
+      </NavbarLink>
     </nav>
   );
 };
@@ -42,7 +45,7 @@ export const AppBar: React.FC = () => {
       <div className="flex flex-1">
         <img className="h-10" src="/nats-icon-white.png" alt="NATS" />
 
-        <h2 className="ml-6 text-3xl tracking-wide">NATS Inspector</h2>
+        <h2 className="ml-6">NATS Inspector</h2>
       </div>
 
       <Navbar />

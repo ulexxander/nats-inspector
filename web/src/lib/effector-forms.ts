@@ -10,11 +10,11 @@ import {
 import { useStore } from "effector-react";
 import React from "react";
 
-export type FormValue = string | number | boolean;
+export type FormValue = string | number | boolean | null;
 
 export type FieldValidator<FieldName> = (
   val: FormValue,
-  externalField: (field: FieldName) => FormValue
+  externalField: (field: FieldName) => FormValue,
 ) => string;
 
 export type FormField<FieldName extends string> = {
@@ -52,7 +52,7 @@ export type ReflectableProps = {
 export type Reflectable = React.FC<ReflectableProps>;
 
 export function createForm<FieldName extends string>(
-  config: FormConfig<FieldName>
+  config: FormConfig<FieldName>,
 ) {
   const validate = createEvent<void>();
   const submitted = createEvent<FormState<FieldName>>();
@@ -98,7 +98,7 @@ export function createForm<FieldName extends string>(
   const $state = combine(values, (v) => v as FormState<FieldName>);
 
   const $noErrors = combine(errors, (errs) =>
-    Object.keys(errs).every((key) => errs[key as FieldName] === "")
+    Object.keys(errs).every((key) => errs[key as FieldName] === ""),
   );
 
   guard({
@@ -116,7 +116,7 @@ export function createForm<FieldName extends string>(
     reset,
     reflect<P>(
       field: FieldName,
-      Component: React.FC<ReflectableProps & P>
+      Component: React.FC<ReflectableProps & P>,
     ): React.FC<P> {
       return (restProps: P) =>
         React.createElement<ReflectableProps & P>(Component, {

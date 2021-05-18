@@ -6,5 +6,5 @@ export const websocketConnectFx = createEffect();
 export const websocketMessage = createEvent<WsEvent>();
 
 export const wsMessages = split(websocketMessage, {
-  subMessage: ({ type }) => type === "SUB_MESSAGE",
+  subMessage: ({ t }) => t === "SUBSCRIPTION_MSG",
 });

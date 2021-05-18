@@ -1,55 +1,49 @@
 import { forward, sample } from "effector";
-import { nanoid } from "nanoid";
+import { $currentConnectionId } from "../connections/connectionsUnits";
 import {
   $previousRequests,
-  $requestError,
-  $requestInput,
-  $requestOutput,
+  $requestPayload,
+  $requestResult,
   $requestSubject,
-  copyRequestOutput,
+  copyRequestResult,
   deletePreviousRequest,
   sendRequest,
-  sendRequestFx,
-  setRequestInput,
-  setRequestOutput,
+  sendRequestMutation,
+  setRequestPayload,
+  setRequestResult,
   setRequestSubject,
 } from "./requestsUnits";
 
-$requestError
-  .on(sendRequestFx.failData, (_, { message }) => message)
-  .reset(sendRequestFx);
-
 $requestSubject.on(setRequestSubject, (_, reqSubject) => reqSubject);
-$requestInput.on(setRequestInput, (_, reqInput) => reqInput);
-$requestOutput.on(setRequestOutput, (_, reqOutput) => reqOutput);
+$requestPayload.on(setRequestPayload, (_, reqPayload) => reqPayload);
+$requestResult.on(setRequestResult, (_, reqResult) => reqResult);
 
 sample({
   clock: sendRequest,
   source: {
+    connectionId: $currentConnectionId,
     subject: $requestSubject,
-    data: $requestInput,
+    data: $requestPayload,
   },
-  target: sendRequestFx,
+  target: sendRequestMutation.run,
 });
 
 forward({
-  from: sendRequestFx.doneData.map((res) =>
-    res ? JSON.stringify(res.reply, null, 2) : "// nothing for now",
-  ),
-  to: copyRequestOutput,
+  from: sendRequestMutation.doneData.map(({ result }) => result),
+  to: copyRequestResult,
 });
 
-$previousRequests.on(sendRequestFx.done, (prevRequests, { params, result }) => [
-  {
-    id: nanoid(),
-    subject: params.subject as string,
-    input: params.data as string,
-    output: JSON.stringify(result.reply, null, 2),
-    dateCreated: new Date().toISOString(),
-  },
-  ...prevRequests,
-]);
+$previousRequests.on(
+  sendRequestMutation.done,
+  (prevRequests, { params, result }) => [
+    {
+      input: params,
+      output: result,
+    },
+    ...prevRequests,
+  ],
+);
 
 $previousRequests.on(deletePreviousRequest, (requests, idToDelete) =>
-  requests.filter((req) => req.id !== idToDelete),
+  requests.filter((req) => req.output.id !== idToDelete),
 );
