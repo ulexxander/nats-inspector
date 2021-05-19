@@ -2,7 +2,6 @@ import { DatabaseQueries } from "../database/queries";
 import { l } from "../modules/logs";
 import { errTextWrap } from "../utils/errors";
 import { batch } from "../utils/sync";
-import { address } from "../utils/texts";
 import { ConnectionsService } from "./connectionsService";
 import { SubscriptionsService } from "./subscriptionsService";
 
@@ -23,7 +22,7 @@ export class BootService {
       l({
         msg: "Recreating and initializing nats connection",
         id: conn.id,
-        server: address(conn),
+        server: conn.server,
       });
 
       jobs.add(

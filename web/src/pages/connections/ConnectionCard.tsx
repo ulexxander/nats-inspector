@@ -70,11 +70,10 @@ const ConnectionButtons: React.FC<{
 export const ConnectionCard: React.FC<{
   connection: ActiveConnection | PausedConnection;
 }> = ({ connection }) => {
-  const { id, description, host, port, dateCreated, dateUpdated } =
+  const { id, description, server, dateCreated, dateUpdated } =
     connection.model;
 
   const descriptionText = description || "(No description)";
-  const server = host + ":" + port;
 
   const fieldTableEntries = [
     { label: "ID", value: id },

@@ -11,10 +11,9 @@ const validateCreateConnectionInput = validator<InsertConnectionVars>({
   properties: {
     title: { type: "string" },
     description: { type: "string", nullable: true },
-    host: { type: "string" },
-    port: { type: "integer" },
+    server: { type: "string" },
   },
-  required: ["title", "description", "host", "port"],
+  required: ["title", "description", "server"],
 });
 
 export class ConnectionsController implements Controller {

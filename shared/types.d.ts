@@ -4,8 +4,7 @@ export type ConnectionModel = {
   id: number;
   title: string;
   description: string | null;
-  host: string;
-  port: number;
+  server: string;
   dateCreated: string;
   dateUpdated?: string;
 };
@@ -21,7 +20,7 @@ export type SubscriptionModel = {
 
 export type InsertConnectionVars = Pick<
   ConnectionModel,
-  "title" | "description" | "host" | "port"
+  "title" | "description" | "server"
 >;
 
 export type DeleteConnectionVars = Pick<ConnectionModel, "id">;

@@ -22,8 +22,8 @@ export function databaseQueries(db: Database) {
   const selectAllConnections = db.prepare(`SELECT * FROM connections`);
   const insertConnection = db.prepare(
     `INSERT INTO connections
-    (title, description, host, port)
-    VALUES (:title, :description, :host, :port)
+    (title, description, server)
+    VALUES (:title, :description, :server)
     RETURNING *`,
   );
   const deleteConnection = db.prepare(

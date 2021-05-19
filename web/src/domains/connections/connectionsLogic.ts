@@ -22,10 +22,7 @@ $currentConnection
   );
 
 forward({
-  from: createConnectionForm.validated.map((state) => ({
-    ...state,
-    port: Number(state.port),
-  })) as Event<InsertConnectionVars>,
+  from: createConnectionForm.validated as Event<InsertConnectionVars>,
   to: createConnMutation.run,
 });
 

@@ -13,8 +13,7 @@ const ConnectionDescription = createConnectionForm.reflect(
   "description",
   InputReflected,
 );
-const ConnectionHost = createConnectionForm.reflect("host", InputReflected);
-const ConnectionPort = createConnectionForm.reflect("port", InputReflected);
+const ConnectionServer = createConnectionForm.reflect("server", InputReflected);
 
 export const AddConnectionForm: React.FC = () => {
   return (
@@ -37,15 +36,10 @@ export const AddConnectionForm: React.FC = () => {
           label="Description"
           placeholder="optional"
         />
-        <ConnectionHost
-          name="new-connection-host"
-          label="Host"
-          placeholder="nats://somehost"
-        />
-        <ConnectionPort
-          name="new-connection-port"
-          label="Port"
-          placeholder="4222"
+        <ConnectionServer
+          name="new-connection-server"
+          label="Server"
+          placeholder="nats://somehost:4222"
         />
 
         <OutlinedButton type="submit" className="mt-5" btnColor="green">

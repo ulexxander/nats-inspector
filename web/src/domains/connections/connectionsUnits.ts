@@ -22,13 +22,9 @@ export const createConnectionForm = createForm<keyof InsertConnectionVars>({
     description: {
       default: "",
     },
-    host: {
+    server: {
       default: "",
-      validator: notEmpty("Host is required"),
-    },
-    port: {
-      default: "",
-      validator: notEmpty("Port is required"),
+      validator: notEmpty("Server is required"),
     },
   },
 });

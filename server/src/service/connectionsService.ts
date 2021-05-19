@@ -11,7 +11,6 @@ import { DatabaseQueries } from "../database/queries";
 import { l } from "../modules/logs";
 import { errText, errWrap } from "../utils/errors";
 import { mapTransform, mapValues } from "../utils/maps";
-import { address } from "../utils/texts";
 
 export type ActiveConnection = ActiveConnectionBase & {
   nats: NatsConnection;
@@ -36,7 +35,7 @@ export class ConnectionsService {
     let conn: NatsConnection;
     try {
       conn = await natsConnect({
-        servers: address(model),
+        servers: model.server,
       });
     } catch (err) {
       this.pausedConnections.set(id, {
@@ -47,7 +46,7 @@ export class ConnectionsService {
           timestamp: new Date().toISOString(),
         },
       });
-      throw errWrap(err, `Cannot connect to nats server ${address(model)}`);
+      throw errWrap(err, `Cannot connect to nats server ${model.server}`);
     }
 
     this.activeConnections.set(id, { type: "active", model, nats: conn });
@@ -59,7 +58,7 @@ export class ConnectionsService {
     const insertedConn = this.db.insertConnection(input);
     l({
       msg: "Creating nats connection",
-      server: address(insertedConn),
+      server: insertedConn.server,
     });
 
     await this.addConnection(insertedConn);
@@ -85,7 +84,7 @@ export class ConnectionsService {
     const deletedConn = this.db.deleteConnection(input);
     l({
       msg: "Deleted nats connection",
-      server: address(deletedConn),
+      server: deletedConn.server,
     });
     return deletedConn;
   }
@@ -104,7 +103,7 @@ export class ConnectionsService {
 
     l({
       msg: "Paused nats connection",
-      server: address(model),
+      server: model.server,
     });
 
     return model;
@@ -124,7 +123,7 @@ export class ConnectionsService {
 
     l({
       msg: "Resumed nats connection",
-      server: address(model),
+      server: model.server,
     });
 
     return model;
