@@ -16,3 +16,25 @@ export function mapKeys<K, V>(map: Map<K, V>): K[] {
 export function mapValues<K, V>(map: Map<K, V>): V[] {
   return [...map.values()];
 }
+
+export class SoftMap<K, V> extends Map<K, V> {
+  constructor(private readonly fallbackValue: V | (() => V)) {
+    super();
+  }
+
+  getFallback(): V {
+    if (typeof this.fallbackValue === "function") {
+      return (this.fallbackValue as () => V)();
+    }
+    return this.fallbackValue;
+  }
+
+  get(key: K) {
+    let val = super.get(key);
+    if (!val) {
+      val = this.getFallback();
+      this.set(key, val);
+    }
+    return val;
+  }
+}
