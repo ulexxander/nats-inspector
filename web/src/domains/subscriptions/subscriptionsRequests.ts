@@ -23,7 +23,7 @@ export const pauseSubMutation = createMutation<IdInput, SubscriptionModel>(
   "/subscriptions/pause",
   { method: "PUT" },
 );
-export const resumeSubMutation = createQuery<IdInput, SubscriptionModel>(
+export const resumeSubMutation = createMutation<IdInput, SubscriptionModel>(
   "/subscriptions/resume",
   { method: "PUT" },
 );

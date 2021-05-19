@@ -1,5 +1,5 @@
 import { createEvent } from "effector";
-import { IdInput, InsertSubscriptionVars } from "../../../../shared/types";
+import { InsertSubscriptionVars } from "../../../../shared/types";
 import { createForm, notEmpty } from "../../lib/effector-forms";
 import { voidEvent } from "../../lib/effector-shortcuts";
 import { createSubMutation } from "./subscriptionsRequests";
@@ -17,4 +17,3 @@ export const createSubscriptionForm = createForm<
 });
 
 export const createSubscription = createEvent();
-export const deleteSubscription = createEvent<IdInput>();

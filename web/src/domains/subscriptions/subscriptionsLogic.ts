@@ -1,15 +1,16 @@
-import { Event, forward, sample } from "effector";
+import { Event, sample } from "effector";
 import { InsertSubscriptionVars } from "../../../../shared/types";
+import { forwardVoid } from "../../lib/effector-shortcuts";
 import { $currentConnectionId } from "../connections/connectionsUnits";
 import {
   activeSubsQuery,
   createSubMutation,
   deleteSubMutation,
+  pausedSubsQuery,
+  pauseSubMutation,
+  resumeSubMutation,
 } from "./subscriptionsRequests";
-import {
-  createSubscriptionForm,
-  deleteSubscription,
-} from "./subscriptionsUnits";
+import { createSubscriptionForm } from "./subscriptionsUnits";
 
 activeSubsQuery.data
   .on(createSubMutation.doneData, (subs, newSub) =>
@@ -33,7 +34,7 @@ sample({
   target: createSubMutation.run,
 });
 
-forward({
-  from: deleteSubscription,
-  to: deleteSubMutation.run,
+forwardVoid({
+  from: [pauseSubMutation.done, resumeSubMutation.done, deleteSubMutation.done],
+  to: [activeSubsQuery.run, pausedSubsQuery.run],
 });
