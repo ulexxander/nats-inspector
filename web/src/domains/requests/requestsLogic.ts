@@ -5,7 +5,7 @@ import {
   $requestPayload,
   $requestResult,
   $requestSubject,
-  copyRequestResult,
+  copyRequestResultFormatted,
   deletePreviousRequest,
   sendRequest,
   sendRequestMutation,
@@ -30,7 +30,7 @@ sample({
 
 forward({
   from: sendRequestMutation.doneData.map(({ result }) => result),
-  to: copyRequestResult,
+  to: copyRequestResultFormatted,
 });
 
 $previousRequests.on(

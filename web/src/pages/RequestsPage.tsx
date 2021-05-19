@@ -5,7 +5,6 @@ import { Surface } from "../components/elements/containers";
 import { Input } from "../components/elements/inputs";
 import { Page } from "../components/elements/layout";
 import { JsonEditor } from "../components/JsonEditor";
-import { $currentConnection } from "../domains/connections/connectionsUnits";
 import {
   $previousRequests,
   $requestPayload,
@@ -16,6 +15,8 @@ import {
   copyRequestResultFormatted,
   deletePreviousRequest,
   PreviousRequest,
+  resetRequestPayload,
+  resetRequestResult,
   sendRequest,
   sendRequestMutation,
   setRequestPayload,
@@ -52,16 +53,22 @@ const RequestSubject: React.FC = () => {
   );
 };
 
-const NewRequestTitle: React.FC = () => {
-  const currentConn = useStore($currentConnection);
-  const text = currentConn ? `Request (${currentConn.model.title})` : `Request`;
-  return <h3>{text}</h3>;
-};
-
 const NewRequest: React.FC = () => {
   return (
     <div className="flex-1">
-      <NewRequestTitle />
+      <div className="flex items-center justify-between">
+        <h3>Request</h3>
+
+        <OutlinedButton
+          btnColor="red"
+          small
+          onClick={() => {
+            resetRequestPayload();
+          }}
+        >
+          Clear
+        </OutlinedButton>
+      </div>
 
       <JsonEditor
         initial={$requestPayload}
@@ -82,15 +89,27 @@ const NewRequest: React.FC = () => {
   );
 };
 
-const ReceivedResponse: React.FC = () => {
+const RequestResult: React.FC = () => {
   return (
     <div className="flex-1">
-      <h3>Response</h3>
+      <div className="flex items-center justify-between">
+        <h3>Response</h3>
+
+        <OutlinedButton
+          btnColor="red"
+          small
+          onClick={() => {
+            resetRequestResult();
+          }}
+        >
+          Clear
+        </OutlinedButton>
+      </div>
 
       <JsonEditor
         initial={$requestResult}
         onChange={setRequestResult}
-        setValue={copyRequestResultFormatted}
+        setValue={copyRequestResult}
       />
 
       <RequestError />
@@ -115,8 +134,8 @@ const PreviousRequestTile: React.FC<{ request: PreviousRequest }> = ({
             btnColor="green"
             small
             onClick={() => {
-              copyRequestPayload(request.input.payload);
-              copyRequestResult(request.output.result);
+              copyRequestPayload(request.input.payload || "");
+              copyRequestResultFormatted(request.output.result);
               setRequestSubject(request.input.subject);
             }}
           >
@@ -133,7 +152,6 @@ const PreviousRequestTile: React.FC<{ request: PreviousRequest }> = ({
         </div>
       </div>
 
-      {/* TODO: figure out wtf is going on with dis fkin table */}
       <table>
         <tbody>
           <tr>
@@ -177,7 +195,7 @@ export const RequestsPage: React.FC = () => {
         <div className="flex justify-between space-x-10">
           <NewRequest />
 
-          <ReceivedResponse />
+          <RequestResult />
         </div>
       </Surface>
 

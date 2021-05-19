@@ -29,10 +29,17 @@ export const setRequestSubject = createEvent<string>();
 export const setRequestPayload = createEvent<string>();
 export const setRequestResult = createEvent<string>();
 
-export const copyRequestPayload = createEvent<string | undefined>();
+export const copyRequestPayload = createEvent<string>();
 export const copyRequestResult = createEvent<string>();
-export const copyRequestResultFormatted = copyRequestResult.map((result) =>
-  JSON.stringify(JSON.parse(result), null, 2),
+export const copyRequestResultFormatted = copyRequestResult.prepend<string>(
+  (result) => JSON.stringify(JSON.parse(result), null, 2),
+);
+
+export const resetRequestPayload = copyRequestPayload.prepend(
+  () => initialRequestPayload,
+);
+export const resetRequestResult = copyRequestResult.prepend(
+  () => initialRequestResult,
 );
 
 export const deletePreviousRequest = createEvent<string>();
