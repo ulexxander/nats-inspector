@@ -10,7 +10,10 @@ import {
   pauseSubMutation,
   resumeSubMutation,
 } from "./subscriptionsRequests";
-import { createSubscriptionForm } from "./subscriptionsUnits";
+import {
+  createSubscriptionForm,
+  pauseSubsOfInnactiveConnsFx,
+} from "./subscriptionsUnits";
 
 activeSubsQuery.data
   .on(createSubMutation.doneData, (subs, newSub) =>
@@ -37,4 +40,15 @@ sample({
 forwardVoid({
   from: [pauseSubMutation.done, resumeSubMutation.done, deleteSubMutation.done],
   to: [activeSubsQuery.run, pausedSubsQuery.run],
+});
+
+sample({
+  clock: $currentConnectionId.updates,
+  source: activeSubsQuery.data,
+  fn(activeSubs, newConnId) {
+    return (
+      activeSubs?.filter((conn) => conn.model.connectionId !== newConnId) || []
+    );
+  },
+  target: pauseSubsOfInnactiveConnsFx,
 });

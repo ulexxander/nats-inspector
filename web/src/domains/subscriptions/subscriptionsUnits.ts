@@ -1,5 +1,8 @@
-import { combine, createEvent } from "effector";
-import { InsertSubscriptionVars } from "../../../../shared/types";
+import { combine, createEffect, createEvent } from "effector";
+import {
+  ActiveSubscription,
+  InsertSubscriptionVars,
+} from "../../../../shared/types";
 import { createForm, notEmpty } from "../../lib/effector-forms";
 import { voidEvent } from "../../lib/effector-shortcuts";
 import { $currentConnectionId } from "../connections/connectionsUnits";
@@ -7,6 +10,7 @@ import {
   activeSubsQuery,
   createSubMutation,
   pausedSubsQuery,
+  pauseSubMutation,
 } from "./subscriptionsRequests";
 
 export const $currentConnActiveSubs = combine(
@@ -36,3 +40,11 @@ export const createSubscriptionForm = createForm<
 });
 
 export const createSubscription = createEvent();
+
+export const pauseSubsOfInnactiveConnsFx = createEffect(
+  async (subsToPause: ActiveSubscription[]) => {
+    for (const sub of subsToPause) {
+      pauseSubMutation.run({ id: sub.model.id });
+    }
+  },
+);
