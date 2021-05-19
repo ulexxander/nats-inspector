@@ -4,10 +4,11 @@ import { Surface } from "../../components/elements/containers";
 import { ErrorBox } from "../../components/elements/errors";
 import { LoadingDots } from "../../components/elements/loading";
 import { pausedSubsQuery } from "../../domains/subscriptions/subscriptionsRequests";
+import { $currentConnPausedSubs } from "../../domains/subscriptions/subscriptionsUnits";
 import { SubscriptionCard } from "./SubscriptionCard";
 
 const PausedSubscriptionsList: React.FC = () => {
-  const subs = useStore(pausedSubsQuery.data);
+  const subs = useStore($currentConnPausedSubs);
   const subsError = useStore(pausedSubsQuery.error);
 
   if (subsError) {
