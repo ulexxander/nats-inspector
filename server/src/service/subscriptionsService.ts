@@ -10,7 +10,7 @@ import type {
 } from "../../../shared/types";
 import { DatabaseQueries } from "../database/queries";
 import { errText } from "../utils/errors";
-import { mapTransform } from "../utils/maps";
+import { mapTransform, SoftMap } from "../utils/maps";
 import { isoTimestamp } from "../utils/time";
 import { WebsocketBroadcaster } from "../websocket/broadcaster";
 import { ConnectionsService } from "./connectionsService";
@@ -23,7 +23,9 @@ export type ActiveSubscription = Omit<ActiveSubscriptionBase, "type"> & {
 export type PausedSubscription = Omit<PausedSubscriptionBase, "type">;
 
 export class SubscriptionsService {
-  private subjects: Set<string> = new Set();
+  private subjectsPerConn: SoftMap<number, Set<string>> = new SoftMap(
+    () => new Set(),
+  );
   private activeSubs: Map<number, ActiveSubscription> = new Map();
   private pausedSubs: Map<number, PausedSubscription> = new Map();
 
@@ -71,17 +73,17 @@ export class SubscriptionsService {
 
   addActiveSubscription(model: SubscriptionModel) {
     const natsSub = this.makeSubscription(model);
-    this.subjects.add(model.subject);
+    this.subjectsPerConn.get(model.connectionId).add(model.subject);
     this.activeSubs.set(model.id, { model, nats: natsSub });
   }
 
   addPausedSubscription(model: SubscriptionModel) {
-    this.subjects.add(model.subject);
+    this.subjectsPerConn.get(model.connectionId).add(model.subject);
     this.pausedSubs.set(model.id, { model });
   }
 
   createSubscription(input: InsertSubscriptionVars): SubscriptionModel {
-    if (this.subjects.has(input.subject)) {
+    if (this.subjectsPerConn.get(input.connectionId).has(input.subject)) {
       throw new Error(`Already subscribed on ${input.subject}`);
     }
 
@@ -131,7 +133,9 @@ export class SubscriptionsService {
     }
 
     const deletedSub = this.db.deleteSubscription(input);
-    this.subjects.delete(deletedSub.subject);
+    this.subjectsPerConn
+      .get(deletedSub.connectionId)
+      .delete(deletedSub.subject);
 
     return deletedSub;
   }
