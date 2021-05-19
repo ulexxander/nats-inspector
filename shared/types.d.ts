@@ -91,7 +91,7 @@ export type WsSubscriptionMsgEvent = WsEventDef<
     messageId: string;
     subscriptionId: number;
     subjectFull: string;
-    data: unknown;
+    data: string;
     timestamp: string;
   }
 >;

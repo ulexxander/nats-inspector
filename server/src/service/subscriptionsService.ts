@@ -137,16 +137,16 @@ export class SubscriptionsService {
   }
 
   getActiveList(): ActiveSubscriptionBase[] {
-    return mapTransform(this.activeSubs, (_id, conn) => ({
+    return mapTransform(this.activeSubs, (_id, { model }) => ({
       type: "active",
-      ...conn,
+      model,
     }));
   }
 
   getPausedList(): PausedSubscriptionBase[] {
-    return mapTransform(this.pausedSubs, (_id, conn) => ({
+    return mapTransform(this.pausedSubs, (_id, sub) => ({
       type: "paused",
-      ...conn,
+      ...sub,
     }));
   }
 }

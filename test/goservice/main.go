@@ -59,18 +59,45 @@ func replier(conn *nats.Conn) {
 		msg.Respond(resData)
 		log.Println("handled that node_does_request")
 	})
+
+	conn.Subscribe("big_request", func(msg *nats.Msg) {
+		fmt.Printf("node_does_request %s\n", msg.Data)
+
+		resData, _ := json.Marshal(map[string][]string{
+			"uuuuuu": {
+				"123", "123", "123",
+				"At", "vero", "eos", "et", "accusamus", "et", "iusto", "odio", "dignissimos", "ducimus", "qui",
+				"blanditiis", "praesentium", "voluptatum", "deleniti", "atque", "corrupti", "quos", "dolores",
+				"et", "quas", "molestias", "excepturi", "sint", "occaecati", "cupiditate", "non", "provident,",
+				"similique", "sunt", "in", "culpa", "qui", "officia", "deserunt", "mollitia", "animi,", "id", "est",
+				"laborum", "et", "dolorum", "fuga.", "Et", "harum", "quidem", "rerum", "facilis", "est", "et", "expedita", "distinctio.",
+				"Nam", "libero", "tempore,", "cum", "soluta", "nobis", "est", "eligendi", "optio", "cumque", "nihil", "impedit",
+				"quo", "minus", "id", "quod", "maxime", "placeat", "facere", "possimus,", "omnis", "voluptas", "assumenda", "est,",
+				"omnis", "dolor", "repellendus.", "Temporibus", "autem", "quibusdam", "et", "aut", "officiis", "debitis", "aut",
+				"rerum", "necessitatibus", "saepe",
+				"eveniet", "ut", "et", "voluptates", "repudiandae", "sint", "et", "molestiae", "non", "recusandae",
+			},
+		})
+
+		msg.Respond(resData)
+		log.Println("handled that node_does_request")
+	})
+}
+
+func pub1(conn *nats.Conn) {
+	data, _ := json.Marshal(map[string]string{
+		"now": time.Now().Format(time.Kitchen),
+		"abc": "defg",
+	})
+
+	log.Println("publishing go_needs_to_tell_something")
+	conn.Publish("go_needs_to_tell_something", data)
+
 }
 
 func publisher(conn *nats.Conn) {
 	for {
-		data, _ := json.Marshal(map[string]string{
-			"now": time.Now().Format(time.Kitchen),
-			"abc": "defg",
-		})
-
-		log.Println("publishing go_needs_to_tell_something")
-		conn.Publish("go_needs_to_tell_something", data)
-
+		pub1(conn)
 		time.Sleep(time.Second * 5)
 	}
 }

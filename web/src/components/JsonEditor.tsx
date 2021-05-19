@@ -31,7 +31,6 @@ export const JsonEditor: React.FC<CodeEditorProps> = ({
       showCursorWhenSelecting: true,
       lineWrapping: true,
       autoCloseBrackets: true,
-      matchBrackets: true,
     });
 
     editor.setSize(null, 500);

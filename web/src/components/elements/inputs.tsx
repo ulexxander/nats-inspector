@@ -19,7 +19,7 @@ export const Input: React.FC<InputProps> = ({
   const err = errText(error);
 
   return (
-    <div className="mt-2 text-lg">
+    <div className="mt-3 text-lg">
       <label className="text-gray-300" htmlFor={name}>
         {label}
       </label>

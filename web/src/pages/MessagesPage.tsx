@@ -5,14 +5,14 @@ import { Surface } from "../components/elements/containers";
 import { Page } from "../components/elements/layout";
 import { $subMessages } from "../domains/subMessages/subMessagesUnits";
 
-const SubMessageTile: React.FC<{ message: WsSubscriptionMsgEvent["p"] }> = ({
+const SubMessageRow: React.FC<{ message: WsSubscriptionMsgEvent["p"] }> = ({
   message,
 }) => {
   return (
     <tr>
       <td className="text-green-400">{message.subjectFull}</td>
       <td className="w-12"></td>
-      <td>{JSON.stringify(message.data, null, 2)}</td>
+      <td>{message.data}</td>
     </tr>
   );
 };
@@ -25,7 +25,7 @@ const SubscriptionMessages: React.FC = () => {
   }
 
   const messagesList = messages.map((message) => (
-    <SubMessageTile key={message.messageId} message={message} />
+    <SubMessageRow key={message.messageId} message={message} />
   ));
 
   return (
@@ -39,7 +39,7 @@ export const MessagesPage: React.FC = () => {
   return (
     <Page>
       <Surface>
-        <h2>Incoming messages</h2>
+        <h3>Incoming messages</h3>
         <SubscriptionMessages />
       </Surface>
     </Page>

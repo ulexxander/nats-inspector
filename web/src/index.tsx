@@ -1,5 +1,4 @@
 import "codemirror/addon/edit/closebrackets.js";
-import "codemirror/addon/edit/matchbrackets.js";
 import "codemirror/keymap/sublime";
 import "codemirror/lib/codemirror.css";
 import "codemirror/lib/codemirror.js";

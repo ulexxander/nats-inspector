@@ -23,7 +23,7 @@ sample({
   source: {
     connectionId: $currentConnectionId,
     subject: $requestSubject,
-    data: $requestPayload,
+    payload: $requestPayload,
   },
   target: sendRequestMutation.run,
 });
