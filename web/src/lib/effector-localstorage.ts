@@ -16,7 +16,6 @@ export function persist<State>(
 
   const restoreFx = createEffect<void, State | null>(() => {
     const storedItem = localStorage.getItem(key);
-
     return storedItem ? config.unmarshal(storedItem) : null;
   });
 
@@ -27,13 +26,25 @@ export function persist<State>(
   store.updates.watch(updateFx);
 }
 
-export function persistText(key: string, store: Store<string>) {
+export function persistScalar<State extends string | number | boolean | null>(
+  key: string,
+  store: Store<State>,
+) {
   persist(key, store, {
     marshal(state) {
-      return state;
+      return state !== null ? state.toString() : "null";
     },
     unmarshal(rawState) {
-      return rawState;
+      switch (typeof store.defaultState) {
+        case "string":
+          return rawState as State;
+        case "number":
+          return Number(rawState) as State;
+        case "boolean":
+          return (rawState === "true") as State;
+        default:
+          return store.defaultState as State;
+      }
     },
   });
 }

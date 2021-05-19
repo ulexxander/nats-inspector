@@ -10,16 +10,16 @@ import {
   resumeConnMutation,
 } from "./connectionsRequests";
 import {
-  $currentConnection,
+  $currentConnectionId,
   createConnectionForm,
-  setCurrentConnection,
+  setCurrentConnectionId,
 } from "./connectionsUnits";
 
-$currentConnection
-  .on(setCurrentConnection, (_, newCurrent) => newCurrent)
+$currentConnectionId
+  .on(setCurrentConnectionId, (_, newId) => newId)
   .on(
     activeConnsQuery.doneData,
-    (current, activeConns) => current || activeConns[0] || null,
+    (current, [firstConn]) => current || firstConn?.model.id || -1,
   );
 
 forward({

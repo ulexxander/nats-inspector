@@ -1,7 +1,10 @@
 import { useStore } from "effector-react";
 import React from "react";
 import { activeConnsQuery } from "../domains/connections/connectionsRequests";
-import { setCurrentConnection } from "../domains/connections/connectionsUnits";
+import {
+  $currentConnectionId,
+  setCurrentConnectionId,
+} from "../domains/connections/connectionsUnits";
 import { cn } from "../lib/classes";
 import { Link, LinkProps, useLocation } from "../lib/effector-router";
 
@@ -43,6 +46,7 @@ const Navbar: React.FC = () => {
 };
 
 const CurrentConnection: React.FC = () => {
+  const currentConnId = useStore($currentConnectionId);
   const activeConns = useStore(activeConnsQuery.data) || [];
 
   const options = activeConns.map((conn) => (
@@ -54,18 +58,15 @@ const CurrentConnection: React.FC = () => {
   return (
     <div className="ml-4">
       <select
-        className="w-48 px-4 py-2 rounded bg-blues-900 form-select"
+        className="w-48 px-4 py-2 font-bold border-gray-700 rounded bg-blues-900 form-select"
         name="current-connection"
+        value={currentConnId}
         onChange={(e) => {
-          const newCurrent = activeConns.find(
-            (conn) => conn.model.id === Number(e.target.value),
-          );
-
-          setCurrentConnection(newCurrent || null);
+          setCurrentConnectionId(Number(e.target.value));
         }}
       >
-        <option value="abc" disabled>
-          aac
+        <option value={-1} disabled>
+          Select connection
         </option>
         {options}
       </select>

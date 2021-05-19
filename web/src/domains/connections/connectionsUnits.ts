@@ -1,17 +1,21 @@
-import { createEvent, createStore } from "effector";
-import {
-  ActiveConnection,
-  InsertConnectionVars,
-} from "../../../../shared/types";
+import { combine, createEvent, createStore } from "effector";
+import { InsertConnectionVars } from "../../../../shared/types";
 import { createForm, notEmpty } from "../../lib/effector-forms";
+import { persistScalar } from "../../lib/effector-localstorage";
+import { activeConnsQuery } from "./connectionsRequests";
 
-// TODO: persist conn id, and implement stuff using combine, not setting it directly
-export const $currentConnection = createStore<ActiveConnection | null>(null);
-export const $currentConnectionId = $currentConnection.map((conn) =>
-  conn ? conn.model.id : -1,
+export const $currentConnectionId = createStore<number>(-1);
+persistScalar("connection_current", $currentConnectionId);
+
+export const $currentConnection = combine(
+  activeConnsQuery.data,
+  $currentConnectionId,
+  (activeConns, currentId) => {
+    return activeConns?.find((conn) => conn.model.id === currentId) || null;
+  },
 );
 
-export const setCurrentConnection = createEvent<ActiveConnection | null>();
+export const setCurrentConnectionId = createEvent<number>();
 
 export const createConnectionForm = createForm<keyof InsertConnectionVars>({
   fields: {

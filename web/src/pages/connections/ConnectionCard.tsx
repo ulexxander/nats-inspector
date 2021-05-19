@@ -27,17 +27,20 @@ const ConnectionButtons: React.FC<{
 
   return (
     <div className="flex items-center">
-      <ConnectionResumingStatus />
       {connection.type === "paused" && (
-        <OutlinedButton
-          small
-          btnColor="green"
-          onClick={() => {
-            resumeConnMutation.run({ id });
-          }}
-        >
-          Resume
-        </OutlinedButton>
+        <>
+          <ConnectionResumingStatus />
+
+          <OutlinedButton
+            small
+            btnColor="green"
+            onClick={() => {
+              resumeConnMutation.run({ id });
+            }}
+          >
+            Resume
+          </OutlinedButton>
+        </>
       )}
 
       {connection.type === "active" && (
