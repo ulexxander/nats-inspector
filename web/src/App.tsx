@@ -6,7 +6,7 @@ import { loadRoutes, RouterView } from "./lib/effector-router";
 import { ConnectionsPage } from "./pages/connections/ConnectionsPage";
 import { MessagesPage } from "./pages/MessagesPage";
 import { RequestsPage } from "./pages/RequestsPage";
-import { SubscriptionsPage } from "./pages/SubscriptionsPage";
+import { SubscriptionsPage } from "./pages/subscriptions/SubscriptionsPage";
 
 const NotFoundPage: React.FC = () => {
   return <Page>Stuff not found, click on those links in the appbar</Page>;

@@ -26,7 +26,7 @@ const ConnectionButtons: React.FC<{
   const { id } = connection.model;
 
   return (
-    <div className="flex items-center">
+    <div className="flex space-x-2">
       {connection.type === "paused" && (
         <>
           <ConnectionResumingStatus />
@@ -47,7 +47,6 @@ const ConnectionButtons: React.FC<{
         <OutlinedButton
           small
           btnColor="blue"
-          className="ml-2"
           onClick={() => {
             pauseConnMutation.run({ id });
           }}
@@ -59,7 +58,6 @@ const ConnectionButtons: React.FC<{
       <OutlinedButton
         small
         btnColor="red"
-        className="ml-2"
         onClick={() => {
           deleteConnMutation.run({ id });
         }}

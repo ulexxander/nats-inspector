@@ -1,6 +1,6 @@
 import { createEvent } from "effector";
 import { IdInput, InsertSubscriptionVars } from "../../../../shared/types";
-import { createForm } from "../../lib/effector-forms";
+import { createForm, notEmpty } from "../../lib/effector-forms";
 import { voidEvent } from "../../lib/effector-shortcuts";
 import { createSubMutation } from "./subscriptionsRequests";
 
@@ -10,6 +10,7 @@ export const createSubscriptionForm = createForm<
   fields: {
     subject: {
       default: "",
+      validator: notEmpty("Subject is required"),
     },
   },
   reset: voidEvent(createSubMutation.done),
