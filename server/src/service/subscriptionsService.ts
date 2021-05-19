@@ -5,20 +5,22 @@ import type {
   DeleteSubscriptionVars,
   IdInput,
   InsertSubscriptionVars,
-  PausedSubscription,
+  PausedSubscription as PausedSubscriptionBase,
   SubscriptionModel,
 } from "../../../shared/types";
 import { DatabaseQueries } from "../database/queries";
 import { errText } from "../utils/errors";
-import { mapTransform, mapValues } from "../utils/maps";
+import { mapTransform } from "../utils/maps";
 import { isoTimestamp } from "../utils/time";
 import { WebsocketBroadcaster } from "../websocket/broadcaster";
 import { ConnectionsService } from "./connectionsService";
 import { NatsService } from "./natsService";
 
-export type ActiveSubscription = ActiveSubscriptionBase & {
+export type ActiveSubscription = Omit<ActiveSubscriptionBase, "type"> & {
   nats: Subscription;
 };
+
+export type PausedSubscription = Omit<PausedSubscriptionBase, "type">;
 
 export class SubscriptionsService {
   private subjects: Set<string> = new Set();
@@ -70,12 +72,12 @@ export class SubscriptionsService {
   addActiveSubscription(model: SubscriptionModel) {
     const natsSub = this.makeSubscription(model);
     this.subjects.add(model.subject);
-    this.activeSubs.set(model.id, { type: "active", model, nats: natsSub });
+    this.activeSubs.set(model.id, { model, nats: natsSub });
   }
 
   addPausedSubscription(model: SubscriptionModel) {
     this.subjects.add(model.subject);
-    this.pausedSubs.set(model.id, { type: "paused", model });
+    this.pausedSubs.set(model.id, { model });
   }
 
   createSubscription(input: InsertSubscriptionVars): SubscriptionModel {
@@ -98,7 +100,7 @@ export class SubscriptionsService {
     activeSub.nats.unsubscribe();
 
     this.activeSubs.delete(id);
-    this.pausedSubs.set(id, { type: "paused", model });
+    this.pausedSubs.set(id, { model });
     return model;
   }
 
@@ -111,7 +113,7 @@ export class SubscriptionsService {
     const natsSub = this.makeSubscription(model);
 
     this.pausedSubs.delete(id);
-    this.activeSubs.set(id, { type: "active", model, nats: natsSub });
+    this.activeSubs.set(id, { model, nats: natsSub });
     return model;
   }
 
@@ -135,13 +137,16 @@ export class SubscriptionsService {
   }
 
   getActiveList(): ActiveSubscriptionBase[] {
-    return mapTransform(this.activeSubs, (_subject, { model }) => ({
+    return mapTransform(this.activeSubs, (_id, conn) => ({
       type: "active",
-      model,
+      ...conn,
     }));
   }
 
-  getPausedList(): PausedSubscription[] {
-    return mapValues(this.pausedSubs);
+  getPausedList(): PausedSubscriptionBase[] {
+    return mapTransform(this.pausedSubs, (_id, conn) => ({
+      type: "paused",
+      ...conn,
+    }));
   }
 }

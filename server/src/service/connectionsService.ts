@@ -5,20 +5,18 @@ import type {
   DeleteConnectionVars,
   IdInput,
   InsertConnectionVars,
-  PausedConnection,
+  PausedConnection as PausedConnectionBase,
 } from "../../../shared/types";
 import { DatabaseQueries } from "../database/queries";
 import { l } from "../modules/logs";
 import { errText, errWrap } from "../utils/errors";
-import { mapTransform, mapValues } from "../utils/maps";
+import { mapTransform } from "../utils/maps";
 
-export type ActiveConnection = ActiveConnectionBase & {
+export type ActiveConnection = Omit<ActiveConnectionBase, "type"> & {
   nats: NatsConnection;
 };
 
-// TODO: get rid of "type" field in maps
-// add it only when sending to the user
-// make better type hierarchy
+export type PausedConnection = Omit<PausedConnectionBase, "type">;
 
 export class ConnectionsService {
   private activeConnections: Map<number, ActiveConnection> = new Map();
@@ -39,7 +37,6 @@ export class ConnectionsService {
       });
     } catch (err) {
       this.pausedConnections.set(id, {
-        type: "paused",
         model,
         error: {
           message: errText(err),
@@ -49,7 +46,7 @@ export class ConnectionsService {
       throw errWrap(err, `Cannot connect to nats server ${model.server}`);
     }
 
-    this.activeConnections.set(id, { type: "active", model, nats: conn });
+    this.activeConnections.set(id, { model, nats: conn });
   }
 
   async createConnection(
@@ -99,7 +96,7 @@ export class ConnectionsService {
     const { model } = activeConn;
 
     this.activeConnections.delete(id);
-    this.pausedConnections.set(id, { type: "paused", model });
+    this.pausedConnections.set(id, { model });
 
     l({
       msg: "Paused nats connection",
@@ -146,7 +143,10 @@ export class ConnectionsService {
     }));
   }
 
-  getPausedList(): PausedConnection[] {
-    return mapValues(this.pausedConnections);
+  getPausedList(): PausedConnectionBase[] {
+    return mapTransform(this.pausedConnections, (_id, conn) => ({
+      type: "paused",
+      ...conn,
+    }));
   }
 }
