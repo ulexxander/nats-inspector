@@ -1,6 +1,6 @@
 import SQLite from "better-sqlite3";
+import { createServer } from "http";
 import { StringCodec } from "nats";
-import { createServer } from "node:http";
 import restana from "restana";
 import Websocket from "ws";
 import { env } from "./config/environment";
