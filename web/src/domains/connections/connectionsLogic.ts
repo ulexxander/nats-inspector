@@ -1,5 +1,6 @@
 import { Event, forward } from "effector";
 import { InsertConnectionVars } from "../../../../shared/types";
+import { forwardVoid } from "../../lib/effector-shortcuts";
 import {
   activeConnsQuery,
   createConnMutation,
@@ -26,17 +27,17 @@ forward({
   to: createConnMutation.run,
 });
 
-forward({
+forwardVoid({
   from: createConnMutation.done,
   to: activeConnsQuery.run,
 });
 
-forward({
+forwardVoid({
   from: createConnMutation.fail,
   to: pausedConnsQuery.run,
 });
 
-forward({
+forwardVoid({
   from: [
     pauseConnMutation.done,
     resumeConnMutation.done,

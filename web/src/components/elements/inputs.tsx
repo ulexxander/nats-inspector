@@ -20,7 +20,7 @@ export const Input: React.FC<InputProps> = ({
 
   return (
     <div className="mt-2 text-lg">
-      <label className="text-gray-300" htmlFor="name">
+      <label className="text-gray-300" htmlFor={name}>
         {label}
       </label>
       <input
