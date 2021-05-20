@@ -1,10 +1,10 @@
 .PHONY: all
 
-inspector-build:
+image-build:
 	docker build -t nats-inspector .
 
-inspector-up:
-	docker-compose up --remove-orphans
+image-run:
+	docker run --rm -p 4001:80 nats-inspector
 
 test-build:
 	docker build -t goservice test/goservice
