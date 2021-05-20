@@ -1,4 +1,4 @@
-import SQLite from "better-sqlite3";
+import SQLite from "better-sqlite3-with-prebuilds";
 import { createServer } from "http";
 import { StringCodec } from "nats";
 import restana from "restana";
@@ -7,7 +7,6 @@ import { env } from "./config/environment";
 import { DatabaseMigrations } from "./database/migrations";
 import { databaseQueries } from "./database/queries";
 import { l } from "./modules/logs";
-import { setupProcess } from "./process";
 import { ConnectionsController } from "./restapi/controllers/connectionsController";
 import { RequestsController } from "./restapi/controllers/requestsController";
 import { SubscriptionsController } from "./restapi/controllers/subscriptionsController";
@@ -24,13 +23,18 @@ import { ConnectionsService } from "./service/connectionsService";
 import { NatsService } from "./service/natsService";
 import { RequestsService } from "./service/requestsService";
 import { SubscriptionsService } from "./service/subscriptionsService";
+import { setupDataDir, setupProcess } from "./setup";
 import { errText } from "./utils/errors";
 import { WebsocketBroadcaster } from "./websocket/broadcaster";
 
 async function main() {
   setupProcess();
+  setupDataDir();
 
-  if (env("ENV_FILE", "true") === "true") {
+  if (env("ENV_FILE", "false") === "true") {
+    l({
+      msg: "Reading .env file",
+    });
     require("dotenv").config();
   }
 

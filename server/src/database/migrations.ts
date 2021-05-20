@@ -1,4 +1,4 @@
-import { Database } from "better-sqlite3";
+import { Database } from "better-sqlite3-with-prebuilds";
 import { promises as fs } from "fs";
 import path from "path";
 import { l } from "../modules/logs";
@@ -41,7 +41,8 @@ export class DatabaseMigrations {
   }
 
   async run() {
-    const directory = path.join(__dirname, "./migrations");
+    console.log(process.cwd());
+    const directory = path.join(process.cwd(), "./migrations");
     const filenames = await fs.readdir(directory);
 
     const executed = this.fetchExecutedMigrations();

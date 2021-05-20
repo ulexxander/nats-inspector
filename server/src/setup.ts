@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { l } from "./modules/logs";
 import { errText } from "./utils/errors";
 
@@ -33,4 +35,16 @@ export function setupProcess() {
     });
     process.exit(1);
   });
+}
+
+export function setupDataDir() {
+  const dataDir = path.join(process.cwd(), "data");
+
+  if (!fs.existsSync(dataDir)) {
+    l({
+      msg: "Creating data directory inside cwd",
+    });
+
+    fs.mkdirSync(dataDir);
+  }
 }

@@ -1,5 +1,6 @@
 *
 !shared/
+!server/migrations/
 !server/src/
 !server/dist/
 
