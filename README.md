@@ -15,7 +15,7 @@ Inspect, test and do cool stuff with your Nats network.
 
 ## Running in docker
 
-- Build an image: `build -t nats-inspector .`
+- Build an image: `docker build -t nats-inspector .`
 - Then run it: `docker run --rm -p 4001:80 nats-inspector`
 
 Or use scripts from root Makefile:
