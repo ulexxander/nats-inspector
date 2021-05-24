@@ -1,4 +1,4 @@
-import SQLite from "better-sqlite3-with-prebuilds";
+import SQLite from "better-sqlite3";
 import { createServer } from "http";
 import { StringCodec } from "nats";
 import restana from "restana";

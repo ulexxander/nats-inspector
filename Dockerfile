@@ -1,4 +1,4 @@
-FROM node:16-alpine AS build
+FROM node:14 AS build
 WORKDIR /app
 COPY . .
 WORKDIR /app/web
@@ -10,7 +10,7 @@ RUN \
   yarn && \
   yarn build
 
-FROM node:16-alpine
+FROM node:14
 WORKDIR /app
 COPY --from=build /app/web/dist ./web/dist/
 COPY --from=build /app/web/package.json ./web/

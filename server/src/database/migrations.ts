@@ -1,4 +1,4 @@
-import { Database } from "better-sqlite3-with-prebuilds";
+import { Database } from "better-sqlite3";
 import { promises as fs } from "fs";
 import path from "path";
 import { l } from "../modules/logs";

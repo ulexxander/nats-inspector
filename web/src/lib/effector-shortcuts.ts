@@ -2,10 +2,6 @@ import { Effect, Event, forward, merge } from "effector";
 
 function nothing() {}
 
-export function isArray<T>(thing: T | T[]): thing is T[] {
-  return Array.isArray(thing);
-}
-
 export function voidEvent(events: Event<any>): Event<void> {
   return events.map(nothing);
 }

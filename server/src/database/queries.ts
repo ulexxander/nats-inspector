@@ -1,4 +1,4 @@
-import { Database, Statement } from "better-sqlite3-with-prebuilds";
+import { Database, Statement } from "better-sqlite3";
 import type {
   ConnectionModel,
   DeleteConnectionVars,
@@ -7,15 +7,28 @@ import type {
   InsertSubscriptionVars,
   SubscriptionModel,
 } from "../../../shared/types";
+import { errWrap } from "../utils/errors";
 
 export type DatabaseQueries = ReturnType<typeof databaseQueries>;
 
-function one<Vars, Row>(statement: Statement) {
-  return (vars: Vars): Row => (vars ? statement.get(vars) : statement.get());
+function one<Vars, Row>(name: string, statement: Statement) {
+  return (vars: Vars): Row => {
+    try {
+      return vars ? statement.get(vars) : statement.get();
+    } catch (err) {
+      throw errWrap(err, `Error during execution of ${name} query`);
+    }
+  };
 }
 
-function many<Vars, Row>(statement: Statement) {
-  return (vars: Vars): Row[] => (vars ? statement.all(vars) : statement.all());
+function many<Vars, Row>(name: string, statement: Statement) {
+  return (vars: Vars): Row[] => {
+    try {
+      return vars ? statement.all(vars) : statement.all();
+    } catch (err) {
+      throw errWrap(err, `Error during execution of ${name} query`);
+    }
+  };
 }
 
 export function databaseQueries(db: Database) {
@@ -45,17 +58,29 @@ export function databaseQueries(db: Database) {
   );
 
   return {
-    selectAllConnections: many<void, ConnectionModel>(selectAllConnections),
-    insertConnection:
-      one<InsertConnectionVars, ConnectionModel>(insertConnection),
-    deleteConnection:
-      one<DeleteConnectionVars, ConnectionModel>(deleteConnection),
+    selectAllConnections: many<void, ConnectionModel>(
+      "selectAllConnections",
+      selectAllConnections,
+    ),
+    insertConnection: one<InsertConnectionVars, ConnectionModel>(
+      "insertConnection",
+      insertConnection,
+    ),
+    deleteConnection: one<DeleteConnectionVars, ConnectionModel>(
+      "deleteConnection",
+      deleteConnection,
+    ),
     selectAllSubscriptions: many<void, SubscriptionModel>(
+      "selectAllSubscriptions",
       selectAllSubscriptions,
     ),
-    insertSubscription:
-      one<InsertSubscriptionVars, SubscriptionModel>(insertSubscription),
-    deleteSubscription:
-      one<DeleteSubscriptionVars, SubscriptionModel>(deleteSubscription),
+    insertSubscription: one<InsertSubscriptionVars, SubscriptionModel>(
+      "insertSubscription",
+      insertSubscription,
+    ),
+    deleteSubscription: one<DeleteSubscriptionVars, SubscriptionModel>(
+      "deleteSubscription",
+      deleteSubscription,
+    ),
   };
 }

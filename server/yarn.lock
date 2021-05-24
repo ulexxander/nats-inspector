@@ -29,7 +29,7 @@
   dependencies:
     "@types/integer" "*"
 
-"@types/integer@*", "@types/integer@latest":
+"@types/integer@*":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@types/integer/-/integer-4.0.0.tgz#3b778715df72d2cf8ba73bad27bd9d830907f944"
   integrity sha512-2U1i6bIRiqizl6O+ETkp2HhUZIxg7g+burUabh9tzGd0qcszfNaFRaY9bGNlQKgEU7DCsH5qMajRDW5QamWQbw==
@@ -149,12 +149,11 @@ base64-js@^1.3.1:
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
-better-sqlite3-with-prebuilds@^7.1.8:
-  version "7.1.8"
-  resolved "https://registry.yarnpkg.com/better-sqlite3-with-prebuilds/-/better-sqlite3-with-prebuilds-7.1.8.tgz#3090c478fe9b60e74ce053a76807b189784f62d7"
-  integrity sha512-trwg1qhN91cPYEB8D2K0KVHIsMsiAnxKx6/syfQ7rLrtD+zOS3fqJq4VGszMF+OuYAZJNAR4oLsikys3YW/6aA==
+better-sqlite3@^7.4.0:
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-7.4.0.tgz#178cec863aa3090cbb0c5392f920925811d6ac87"
+  integrity sha512-hXwwaFvtYwRfjBSGP6+woB95qbwSnfpXyy/kDFzgOMoDttzyaWsBGcU3FGuRbzhbRv0qpKRCJQ6Hru2pQ8adxg==
   dependencies:
-    "@types/integer" latest
     bindings "^1.5.0"
     prebuild-install "^6.0.1"
     tar "^6.1.0"

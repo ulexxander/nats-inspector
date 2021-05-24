@@ -1,10 +1,13 @@
 .PHONY: all
 
-image-build:
+build:
 	docker build -t nats-inspector .
 
-image-run:
-	docker run --rm -p 4001:80 nats-inspector
+up:
+	docker run --name nats-inspector --rm -p 4001:80 nats-inspector
+
+down:
+	docker container stop nats-inspector && docker container rm nats-inspector
 
 test-build:
 	docker build -t goservice test/goservice
