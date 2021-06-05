@@ -10,8 +10,8 @@ down:
 	docker container stop nats-inspector && docker container rm nats-inspector
 
 test-build:
-	docker build -t goservice test/goservice
-	docker build -t nodeservice test/nodeservice
+	docker build -t goservice testenv/goservice
+	docker build -t nodeservice testenv/nodeservice
 
 test-up:
-	docker-compose -f test/docker-compose.yml up
+	docker-compose -f testenv/docker-compose.yml up

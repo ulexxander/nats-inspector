@@ -17,10 +17,14 @@ import {
 
 $currentConnectionId
   .on(setCurrentConnectionId, (_, newId) => newId)
-  .on(
-    activeConnsQuery.doneData,
-    (current, [firstConn]) => current || firstConn?.model.id || -1,
-  );
+  .on(activeConnsQuery.doneData, (currentId, activeConns) => {
+    const current = activeConns.find((conn) => conn.model.id === currentId);
+    if (current) {
+      return current.model.id;
+    }
+
+    return activeConns[0]?.model.id || -1;
+  });
 
 forward({
   from: createConnectionForm.validated as Event<InsertConnectionVars>,
