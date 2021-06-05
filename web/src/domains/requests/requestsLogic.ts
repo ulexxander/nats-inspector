@@ -35,13 +35,14 @@ forward({
 
 $previousRequests.on(
   sendRequestMutation.done,
-  (prevRequests, { params, result }) => [
-    {
-      input: params,
-      output: result,
-    },
-    ...prevRequests,
-  ],
+  (prevRequests, { params, result }) =>
+    [
+      {
+        input: params,
+        output: result,
+      },
+      ...prevRequests,
+    ].slice(0, 100),
 );
 
 $previousRequests.on(deletePreviousRequest, (requests, idToDelete) =>
