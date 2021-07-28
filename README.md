@@ -2,6 +2,8 @@
 
 Inspect, test and do cool stuff with your Nats network.
 
+![image](https://user-images.githubusercontent.com/55105865/127385417-209cc152-c830-49b9-aadb-e32fbd4a06b5.png)
+
 ## Currently supported features
 
 - Multi server support: create, delete, resume, pause connections on the fly
